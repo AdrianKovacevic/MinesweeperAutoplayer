@@ -5,6 +5,9 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public class Screen {
 
@@ -15,7 +18,6 @@ public class Screen {
         mineGridTopCornerY = 0;
         mineGridBottomCornerX = 0;
         mineGridBottomCornerY = 0;
-        gameOver = false;
         screenShot = null;
         mineGrid = new int[16][30];
         try {
@@ -58,11 +60,8 @@ public class Screen {
         return mineGridTopCornerX;
     };
 
-    public boolean isGameOver () {
-       return gameOver;
-    };
 
-    public void fillMineGrid() {
+    public boolean fillMineGrid() {
 
         takeScreenshot();
 
@@ -90,6 +89,7 @@ public class Screen {
             int blank = 0;
             int flag = 0;
             int testNum = 0;
+            int gameOverPopup = 0;
 
             for (int y = mineGridTopCornerY + 17; y < mineGridBottomCornerY; y += 18) {
 
@@ -98,17 +98,36 @@ public class Screen {
                     int red = colour.getRed();
                     int green = colour.getGreen();
                     int blue = colour.getBlue();
-//                robot.mouseMove(x, y);
-//                if (testNum == 7) {
+//                if (testNum == 75) {
+//                    robot.mouseMove(x, y);
 //                    System.out.println(red + " " + green + " " + blue);
-//                    screen = screen.getSubimage(x, y, 10, 10);
+//                    BufferedImage ss = screenShot.getSubimage(x, y, 10, 10);
 //                    File outputfile = new File("saved.png");
-//                    ImageIO.write(screen, "png", outputfile);
-//                    break;
+//                    try {
+//                        ImageIO.write(ss, "png", outputfile);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//
 //                }
-                    if (red <= 230 && red > 160 && green <= 70 && green >= 0 &&  blue <= 80 && blue >= 0) {
+                    if (red == 240 && green == 240 && blue == 240) {
+                        gameOverPopup += 1;
+                        for (int i = 1; i < 25; i++) {
+                            Color gameOverColour = new Color(screenShot.getRGB(x + i, y));
+                            if (gameOverColour.getRed() == 240 && gameOverColour.getGreen() == 240 && gameOverColour.getBlue() == 240) {
+                                gameOverPopup += 1;
+                            }
+                        }
+                        if (gameOverPopup == 25) {
+                            return true;
+                        } else {
+                            gameOverPopup = 0;
+                        }
+                    }
+
+                    if (red <= 230 && red > 160 && green <= 80 && green >= 0 &&  blue <= 80 && blue >= 0) {
                         //                    System.out.println("Three?");
-                        //                    three++;
+                        three++;
                         mineGrid[row][column % 30] = 3;
 
                     } else if (red <= 67 && red >= 55 && green <= 85 && green >= 75 &&  blue <= 195 && blue >= 185) {
@@ -123,10 +142,10 @@ public class Screen {
                     }  else if (red <= 65 && red >= 10 && green <= 117 && green >= 97 &&  blue <= 50 && blue >= 0) {
                         two++;
                         mineGrid[row][column % 30] = 2;
-                    }  else if (red <= 135 && red >= 115 && green <= 50 && green >= 0 &&  blue <= 50 && blue >= 0) {
+                    }  else if (red <= 140 && red >= 115 && green <= 70 && green >= 0 &&  blue <= 70 && blue >= 0) {
                         five++;
                         mineGrid[row][column % 30] = 5;
-                    } else if (red <= 120 && red >= 75 && green <= 125 && green >= 80 &&  blue <= 175 && blue >= 160) {
+                    } else if (red <= 90 && red >= 30 && green <= 100 && green >= 30 &&  blue <= 175 && blue >= 145) {
                         four++;
                         mineGrid[row][column % 30] = 4;
                     } else if (red <= 164 && red >= 156 && green <= 163 && green >= 155 &&  blue <= 164 && blue >= 156) {
@@ -140,16 +159,29 @@ public class Screen {
 //                Thread.sleep(100);
 //                System.out.println(red + " " + green + " " + blue);
 
-//                testNum++;
+                testNum++;
                 }
                 row++;
-//           if (testNum == 7) {
-//                break;
-//            }
+//                if (testNum == 221) {
+//                    break;
+//                }
             }
 
-        return;
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
 
+    };
+
+    public int[] getTilePos (int row, int column) {
+        int[] tilePos = new int[2];
+        tilePos[0] = mineGridTopCornerX + 6 + (18 * column);
+        tilePos[1] = mineGridTopCornerY + 6 + (18 * row);
+
+        return tilePos;
     };
 
 
@@ -179,8 +211,6 @@ public class Screen {
     private int mineGridBottomCornerX;
 
     private int mineGridBottomCornerY;
-
-    private boolean gameOver;
 
 
 }
