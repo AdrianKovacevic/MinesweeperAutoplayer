@@ -3,7 +3,8 @@ package com.company;
 import java.awt.Robot;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-
+import java.io.File;
+import javax.imageio.ImageIO;
 
 public class Main {
 
@@ -68,38 +69,49 @@ public class Main {
         int four = 0;
         int five = 0;
         int blank = 0;
+        int flag = 0;
+        int testNum = 0;
 
         for (int y = topCornerY + 17; y < bottomCornerY; y += 18) {
 
-            for (int x = topCornerX + 14; x < bottomCornerX; x += 18) {
+            for (int x = topCornerX + 13; x < bottomCornerX; x += 18) {
                 Color colour = new Color(screen.getRGB(x, y));
                 int red = colour.getRed();
                 int green = colour.getGreen();
                 int blue = colour.getBlue();
-
-                if (red <= 190 && red >= 160 && green <= 125 && green >= 80 &&  blue <= 130 && blue >= 80) {
+                robot.mouseMove(x, y);
+//                if (testNum == 7) {
+//                    System.out.println(red + " " + green + " " + blue);
+//                    screen = screen.getSubimage(x, y, 10, 10);
+//                    File outputfile = new File("saved.png");
+//                    ImageIO.write(screen, "png", outputfile);
+//                    break;
+//                }
+                if (red <= 230 && red > 160 && green <= 70 && green >= 0 &&  blue <= 80 && blue >= 0) {
                     System.out.println("Three?");
                     three++;
-                    robot.mouseMove(x, y);
-                    System.out.println(red + " " + green + " " + blue);
-                    // fix the three and five recognition
-                } else if (red <= 80 && red >= 60 && green <= 95 && green >= 75 &&  blue <= 192 && blue >= 188) {
-                    System.out.println("One?");
-                    one++;
-
-                } else if (red <= 230 && red >= 165 && green <= 245 && green >= 175 &&  blue <= 255 && blue >= 200) {
+                } else if (red <= 67 && red >= 55 && green <= 85 && green >= 75 &&  blue <= 195 && blue >= 185) {
+                    colour = robot.getPixelColor(x, y + 2);
+                    if (colour.getRed() >= 150 && colour.getGreen() >= 150) {
+                        System.out.println("One?");
+                        one++;
+                    }
+                } else if (red <= 230 && red >= 165 && green <= 245 && green >= 175 &&  blue <= 255 && blue >= 206) {
                     System.out.println("Blank?");
                     blank++;
-                }  else if (red <= 45 && red >= 10 && green <= 110 && green >= 100 &&  blue <= 10 && blue >= 0) {
+                }  else if (red <= 65 && red >= 10 && green <= 117 && green >= 97 &&  blue <= 50 && blue >= 0) {
                     System.out.println("Two?");
                     two++;
-                }  else if (red <= 165 && red >= 145 && green <= 115 && green >= 105 &&  blue <= 130 && blue >= 110) {
+                }  else if (red <= 135 && red >= 115 && green <= 50 && green >= 0 &&  blue <= 50 && blue >= 0) {
                     System.out.println("Five?");
                     five++;
 
-                } else if (red <= 10 && red >= 0 && green <= 10 && green >= 0 &&  blue <= 135 && blue >= 125) {
+                } else if (red <= 120 && red >= 75 && green <= 125 && green >= 80 &&  blue <= 175 && blue >= 160) {
                     System.out.println("Four?");
                     four++;
+                } else if (red <= 164 && red >= 156 && green <= 163 && green >= 155 &&  blue <= 164 && blue >= 156) {
+                    System.out.println("Flag?");
+                    flag++;
                 }
 //                robot.mouseMove(x + 126, y + 108);
 //                return;
@@ -109,8 +121,12 @@ public class Main {
 //                Thread.sleep(100);
 //                System.out.println(red + " " + green + " " + blue);
                 column++;
+                testNum++;
             }
             row++;
+//           if (testNum == 7) {
+//                break;
+//            }
         }
 
 
