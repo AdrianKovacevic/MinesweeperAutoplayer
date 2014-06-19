@@ -23,6 +23,7 @@ public class Main {
             screen.robot.mouseMove(screen.getMineGridTopCornerX() + 396, screen.getMineGridTopCornerY() + 210);
             screen.robot.mousePress(InputEvent.BUTTON1_MASK);
             screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+            Thread.sleep(2000);
             return;
         }
 
@@ -62,9 +63,9 @@ public class Main {
 
                                     try {
                                         if (mineGrid[testRow][testCol] == 0) {
-                                            numZero += 1;
+                                            numZero++;
                                         } else if (mineGrid[testRow][testCol] == 15) {
-                                            numFlags += 1;
+                                            numFlags++;
                                         }
                                     } catch (Exception e) {
                                         System.out.println("Array out of bounds");
@@ -74,8 +75,12 @@ public class Main {
                             }
                         }
 
+
+
                         if (mineGrid[y][x] == numFlags && numZero != 0) {
                             // expand the tile since possible
+                            System.out.println("Expanding around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "Numzeros: " + numZero);
+
                             int[] tilePos = screen.getTilePos(y, x);
                             screen.robot.mouseMove(tilePos[0], tilePos[1]);
                             screen.robot.mousePress(InputEvent.BUTTON2_MASK);
@@ -83,6 +88,8 @@ public class Main {
                             screen.robot.mouseRelease(InputEvent.BUTTON2_MASK);
                             return;
                         } else if (mineGrid[y][x] - numFlags == numZero && numZero != 0) {
+                            System.out.println("Flagging around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "Numzeros: " + numZero);
+
                             // mark all surrounding tiles with flags
                             for (int i = -1; i < 2; i++) {
                                 for (int j = -1; j < 2; j++) {
@@ -105,8 +112,134 @@ public class Main {
                                     }
                                 }
                             }
-
+                            screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
                             return;
+                        }
+                    }
+                }
+            }
+
+            for (int y = 0; y < 16; y++) {
+                for (int x = 0; x < 30; x++) {
+                    if (mineGrid[y][x] != 0 && mineGrid[y][x] != 11 && mineGrid[y][x] != 15) {
+                        int numZero = 0;
+                        int numFlags = 0;
+                        for (int i = -1; i < 2; i++) {
+                            for (int j = -1; j < 2; j++) {
+                                if (i != 0 || j != 0) {
+                                    int testCol = j + x;
+                                    int testRow = i + y;
+
+                                    try {
+                                        if (mineGrid[testRow][testCol] == 0) {
+                                            numZero++;
+                                        } else if (mineGrid[testRow][testCol] == 15) {
+                                            numFlags++;
+                                        }
+                                    } catch (Exception e) {
+                                        System.out.println("Array out of bounds");
+
+                                    }
+                                }
+                            }
+                        }
+
+
+
+                        if (numZero == 2) {
+                            System.out.println("Making a guess around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "Numzeros: " + numZero);
+                            for (int i = -1; i < 2; i++) {
+                                for (int j = -1; j < 2; j++) {
+                                    if (i != 0 || j != 0) {
+                                        int testCol = j + x;
+                                        int testRow = i + y;
+
+                                        try {
+                                            if (mineGrid[testRow][testCol] == 0) {
+                                                int[] tilePos = screen.getTilePos(testRow, testCol);
+                                                screen.robot.mouseMove(tilePos[0], tilePos[1]);
+                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                                                Thread.sleep(50);
+                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                                                Thread.sleep(50);
+                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                                                Thread.sleep(50);
+                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                                                return;
+                                            }
+                                        } catch (Exception e) {
+                                            System.out.println("Array out of bounds");
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        numZero = 0;
+                        numFlags = 0;
+                    }
+                }
+            }
+            for (int y = 0; y < 16; y++) {
+                for (int x = 0; x < 30; x++) {
+                    if (mineGrid[y][x] != 0 && mineGrid[y][x] != 11 && mineGrid[y][x] != 15) {
+                        int numZero = 0;
+                        int numFlags = 0;
+                        for (int i = -1; i < 2; i++) {
+                            for (int j = -1; j < 2; j++) {
+                                if (i != 0 || j != 0) {
+                                    int testCol = j + x;
+                                    int testRow = i + y;
+
+                                    try {
+                                        if (mineGrid[testRow][testCol] == 0) {
+                                            numZero++;
+                                        } else if (mineGrid[testRow][testCol] == 15) {
+                                            numFlags++;
+                                        }
+                                    } catch (Exception e) {
+                                        System.out.println("Array out of bounds");
+
+                                    }
+                                }
+                            }
+                        }
+
+
+
+                        if (numZero != 0) {
+                            int numGuesses = Math.abs(numZero - (mineGrid[y][x] - numFlags));
+                            System.out.println("Making " + numGuesses + " guesses around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "Numzeros: " + numZero);
+
+                            for (int i = -1; i < 2; i++) {
+                                for (int j = -1; j < 2; j++) {
+                                    if (i != 0 || j != 0) {
+                                        int testCol = j + x;
+                                        int testRow = i + y;
+
+                                        try {
+                                            if (mineGrid[testRow][testCol] == 0) {
+                                                if (numGuesses == 0) {
+                                                    return;
+                                                }
+                                                int[] tilePos = screen.getTilePos(testRow, testCol);
+                                                screen.robot.mouseMove(tilePos[0], tilePos[1]);
+                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                                                Thread.sleep(50);
+                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                                                Thread.sleep(50);
+                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                                                Thread.sleep(50);
+                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                                                numGuesses--;
+                                            }
+                                        } catch (Exception e) {
+                                            System.out.println("Array out of bounds");
+
+                                        }
+                                    }
+                                }
+                            }
                         }
                         numZero = 0;
                         numFlags = 0;
@@ -136,10 +269,11 @@ public class Main {
         }
 
         Screen screen = new Screen();
+
         try {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 15; i++) {
                 doNextMove(screen);
-                Thread.sleep(1000);
+                Thread.sleep(500);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
