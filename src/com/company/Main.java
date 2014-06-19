@@ -22,7 +22,9 @@ public class Main {
         if (gameOver) {
             screen.robot.mouseMove(screen.getMineGridTopCornerX() + 396, screen.getMineGridTopCornerY() + 210);
             screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+            Thread.sleep(50);
             screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+            screen.robot.mouseMove(screen.getMineGridTopCornerX(), screen.getMineGridTopCornerY());
             Thread.sleep(2000);
             return;
         }
@@ -175,8 +177,7 @@ public class Main {
                                 }
                             }
                         }
-                        numZero = 0;
-                        numFlags = 0;
+
                     }
                 }
             }
@@ -241,8 +242,7 @@ public class Main {
                                 }
                             }
                         }
-                        numZero = 0;
-                        numFlags = 0;
+
                     }
                 }
             }
@@ -271,9 +271,9 @@ public class Main {
         Screen screen = new Screen();
 
         try {
-            for (int i = 0; i < 15; i++) {
+            for (int i = 0; i < 1000; i++) {
                 doNextMove(screen);
-                Thread.sleep(500);
+                Thread.sleep(400);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
