@@ -271,7 +271,7 @@ public class Main {
         Screen screen = new Screen();
 
         try {
-            for (int i = 0; i < 1000; i++) {
+            while (true) {
                 doNextMove(screen);
                 Thread.sleep(400);
             }

@@ -92,6 +92,7 @@ public class Screen {
             three = 0;
             four = 0;
             five = 0;
+            six = 0;
             blank = 0;
             flag = 0;
             int testNum = 0;
@@ -104,7 +105,7 @@ public class Screen {
                     int red = colour.getRed();
                     int green = colour.getGreen();
                     int blue = colour.getBlue();
-//                if (testNum == 30*1 + 2) {
+//                if (testNum == 30*0 + 2) {
 //                    robot.mouseMove(x, y);
 //                    System.out.println(red + " " + green + " " + blue);
 //                    BufferedImage ss = screenShot.getSubimage(x, y, 10, 10);
@@ -133,7 +134,7 @@ public class Screen {
 
                     boolean givenValue = false;
 
-                    if (red <= 230 && red > 160 && green <= 80 && green >= 0 &&  blue <= 84 && blue >= 0) {
+                    if (red <= 230 && red > 160 && green <= 85 && green >= 0 &&  blue <= 90 && blue >= 0) {
                         //                    System.out.println("Three?");
                         three++;
                         mineGrid[row][column % 30] = 3;
@@ -156,6 +157,10 @@ public class Screen {
                     }  else if (red <= 153 && red >= 115 && green <= 90 && green >= 0 &&  blue <= 100 && blue >= 0) {
                         five++;
                         mineGrid[row][column % 30] = 5;
+                        givenValue = true;
+                    }  else if (red <= 20 && green <= 130 && green >= 119 &&  blue <= 130 && blue >= 115) {
+                        six++;
+                        mineGrid[row][column % 30] = 6;
                         givenValue = true;
                     } else if (red <= 164 && red >= 150 && green <= 163 && green >= 150 &&  blue <= 170 && blue >= 156) {
                         flag++;
@@ -243,6 +248,7 @@ public class Screen {
     public int three;
     public int four;
     public int five;
+    public int six;
     public int blank;
     public int flag;
 
