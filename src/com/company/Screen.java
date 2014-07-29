@@ -1,5 +1,10 @@
 package com.company;
 
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.win32.StdCallLibrary;
+import com.sun.jna.win32.W32APIOptions;
+
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -251,6 +256,8 @@ public class Screen {
     public int six;
     public int blank;
     public int flag;
+
+
 
 
 }
