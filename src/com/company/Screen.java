@@ -74,21 +74,37 @@ public class Screen {
         boolean topCornerFound = false;
         mineGrid = new int[16][30];
 
+// finds the corners by looking for a certain pixel, not good
+//            for (int y = 0; y < screenHeight; y++) {
+//                for (int x = 0; x < screenWidth; x++) {
+//                    Color colour = new Color(screenShot.getRGB(x, y));
+//                    if (colour.getRed() == 168 && colour.getGreen() == 183 && colour.getBlue() == 203 && topCornerFound == false) {
+//                        mineGridTopCornerX = x;
+//                        mineGridTopCornerY = y;
+//                        topCornerFound = true;
+//                    }
+//                    if (colour.getRed() == 107 && colour.getGreen() == 117 && colour.getBlue() == 143) {
+//                        mineGridBottomCornerX = x;
+//                        mineGridBottomCornerY = y;
+//                    }
+//                }
+//            }
 
-            for (int y = 0; y < screenHeight; y++) {
-                for (int x = 0; x < screenWidth; x++) {
-                    Color colour = new Color(screenShot.getRGB(x, y));
-                    if (colour.getRed() == 168 && colour.getGreen() == 183 && colour.getBlue() == 203 && topCornerFound == false) {
-                        mineGridTopCornerX = x;
-                        mineGridTopCornerY = y;
-                        topCornerFound = true;
-                    }
-                    if (colour.getRed() == 107 && colour.getGreen() == 117 && colour.getBlue() == 143) {
-                        mineGridBottomCornerX = x;
-                        mineGridBottomCornerY = y;
-                    }
-                }
-            }
+        int[] rect = new int[4];
+        try {
+            rect = GetWindowRect.getRect("Minesweeper");
+        } catch (GetWindowRect.WindowNotFoundException e) {
+            e.printStackTrace();
+        } catch (GetWindowRect.GetWindowRectException e) {
+            e.printStackTrace();
+        }
+
+            mineGridTopCornerX = rect[0] + 36;
+            mineGridTopCornerY = rect[1] +  78;
+            mineGridBottomCornerX = rect[2] - 37;
+            mineGridBottomCornerY = rect[3] - 40;
+
+
 
             int row = 0;
             int column = 0;
