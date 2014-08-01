@@ -1,21 +1,27 @@
 package com.company;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.win32.WinDef;
-import com.sun.jna.win32.StdCallLibrary;
-import com.sun.jna.win32.W32APIOptions;
+
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 public class Screen {
 
-    final int ROWSIZE = 16;
-    final int COLSIZE = 30;
+    final int ROW_SIZE = 16;
+    final int COLUMN_SIZE = 30;
+    final int CELL_UNKNOWN = 0;
+    final int CELL_ONE = 1;
+    final int CELL_TWO = 2;
+    final int CELL_THREE = 3;
+    final int CELL_FOUR = 4;
+    final int CELL_FIVE = 5;
+    final int CELL_SIX = 6;
+    final int CELL_SEVEN = 7;
+    final int CELL_BLANK = 11;
+    final int CELL_FLAG = 15;
 
     public Screen () {
         screenWidth = 0;
@@ -25,7 +31,7 @@ public class Screen {
         mineGridBottomCornerX = 0;
         mineGridBottomCornerY = 0;
         screenShot = null;
-        mineGrid = new int[ROWSIZE][COLSIZE];
+        mineGrid = new int[ROW_SIZE][COLUMN_SIZE];
         try {
             robot = new Robot();
         } catch (AWTException e) {
@@ -73,7 +79,7 @@ public class Screen {
         takeScreenshot();
         boolean topCornerFound = false;
 
-        mineGrid = new int[ROWSIZE][COLSIZE];
+        mineGrid = new int[ROW_SIZE][COLUMN_SIZE];
 
 // finds the corners by looking for a certain pixel, not good
 //            for (int y = 0; y < screenHeight; y++) {
@@ -177,34 +183,34 @@ public class Screen {
                     if (red <= 230 && red > 160 && green <= 85 && green >= 0 &&  blue <= 90 && blue >= 0) {
                         //                    System.out.println("Three?");
                         three++;
-                        mineGrid[row][column % COLSIZE] = 3;
+                        mineGrid[row][column % COLUMN_SIZE] = 3;
                         givenValue = true;
                     } else if (red <= 67 && red >= 55 && green <= 85 && green >= 75 &&  blue <= 195 && blue >= 185) {
                         colour = robot.getPixelColor(x, y + 2);
                         if (colour.getRed() >= 150 && colour.getGreen() >= 150) {
                             one++;
-                            mineGrid[row][column % COLSIZE] = 1;
+                            mineGrid[row][column % COLUMN_SIZE] = 1;
                             givenValue = true;
                         }
                     } else if (red <= 230 && red >= 160 && green <= 245 && green >= 170 &&  blue <= 255 && blue >= 200) {
                         blank++;
-                        mineGrid[row][column % COLSIZE] = 11;
+                        mineGrid[row][column % COLUMN_SIZE] = 11;
                         givenValue = true;
                     }  else if (red <= 65 && red >= 10 && green <= 117 && green >= 97 &&  blue <= 50 && blue >= 0) {
                         two++;
-                        mineGrid[row][column % COLSIZE] = 2;
+                        mineGrid[row][column % COLUMN_SIZE] = 2;
                         givenValue = true;
                     }  else if (red <= 153 && red >= 115 && green <= 90 && green >= 0 &&  blue <= 100 && blue >= 0) {
                         five++;
-                        mineGrid[row][column % COLSIZE] = 5;
+                        mineGrid[row][column % COLUMN_SIZE] = 5;
                         givenValue = true;
                     }  else if (red <= 20 && green <= 130 && green >= 119 &&  blue <= 130 && blue >= 115) {
                         six++;
-                        mineGrid[row][column % COLSIZE] = 6;
+                        mineGrid[row][column % COLUMN_SIZE] = 6;
                         givenValue = true;
                     } else if (red <= 164 && red >= 150 && green <= 163 && green >= 150 &&  blue <= 170 && blue >= 156) {
                         flag++;
-                        mineGrid[row][column % COLSIZE] = 15;
+                        mineGrid[row][column % COLUMN_SIZE] = 15;
                         givenValue = true;
                     }
 
@@ -215,7 +221,7 @@ public class Screen {
                         blue = colour.getBlue();
                         if (red <= 40 && green <= 40 && blue <= 145 && blue >= 120) {
                             four++;
-                            mineGrid[row][column % COLSIZE] = 4;
+                            mineGrid[row][column % COLUMN_SIZE] = 4;
                         }
                     }
 

@@ -1,25 +1,18 @@
 package com.company;
 
-import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
 
-import java.awt.Robot;
-import java.awt.*;
 import java.awt.event.InputEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.Random;
-import javax.imageio.ImageIO;
-import javax.swing.ButtonModel;
+
 
 public class Main {
 
 
     private static void doNextMove (Screen screen) throws InterruptedException {
-        final int ROWSIZE = 16;
-        final int COLSIZE = 30;
-        final int CELL_BLANK = 0;
+        final int ROW_SIZE = 16;
+        final int COLUMN_SIZE = 30;
+        final int CELL_UNKNOWN = 0;
         final int CELL_ONE = 1;
         final int CELL_TWO = 2;
         final int CELL_THREE = 3;
@@ -27,6 +20,7 @@ public class Main {
         final int CELL_FIVE = 5;
         final int CELL_SIX = 6;
         final int CELL_SEVEN = 7;
+        final int CELL_BLANK = 11;
         final int CELL_FLAG = 15;
 
         boolean isEmpty = true;
@@ -45,8 +39,8 @@ public class Main {
 
         int[][] mineGrid = screen.getMineGrid();
 
-        for (int y = 0; y < ROWSIZE; y++) {
-            for (int x = 0; x < COLSIZE; x++) {
+        for (int y = 0; y < ROW_SIZE; y++) {
+            for (int x = 0; x < COLUMN_SIZE; x++) {
                 if (mineGrid[y][x] != 0) {
                     isEmpty = false;
                 }
@@ -66,9 +60,9 @@ public class Main {
         } else {
 
 
-            for (int y = 0; y < ROWSIZE; y++) {
-                for (int x = 0; x < COLSIZE; x++) {
-                    if (mineGrid[y][x] != 0 && mineGrid[y][x] != 11 && mineGrid[y][x] != 15) {
+            for (int y = 0; y < ROW_SIZE; y++) {
+                for (int x = 0; x < COLUMN_SIZE; x++) {
+                    if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
                         int numZero = 0;
                         int numFlags = 0;
                         for (int i = -1; i < 2; i++) {
@@ -78,7 +72,7 @@ public class Main {
                                     int testRow = i + y;
 
                                     try {
-                                        if (mineGrid[testRow][testCol] == CELL_BLANK) {
+                                        if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
                                             numZero++;
                                         } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
                                             numFlags++;
@@ -113,7 +107,7 @@ public class Main {
                                         int testRow = i + y;
 
                                         try {
-                                            if (mineGrid[testRow][testCol] == 0) {
+                                            if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
                                                 int[] tilePos = screen.getTilePos(testRow, testCol);
                                                 screen.robot.mouseMove(tilePos[0], tilePos[1]);
                                                 screen.robot.mousePress(InputEvent.BUTTON3_MASK);
@@ -134,9 +128,9 @@ public class Main {
                 }
             }
 
-            for (int y = 0; y < ROWSIZE; y++) {
-                for (int x = 0; x < COLSIZE; x++) {
-                    if (mineGrid[y][x] != 0 && mineGrid[y][x] != 11 && mineGrid[y][x] != 15) {
+            for (int y = 0; y < ROW_SIZE; y++) {
+                for (int x = 0; x < COLUMN_SIZE; x++) {
+                    if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
                         int numZero = 0;
                         int numFlags = 0;
                         for (int i = -1; i < 2; i++) {
@@ -146,9 +140,9 @@ public class Main {
                                     int testRow = i + y;
 
                                     try {
-                                        if (mineGrid[testRow][testCol] == 0) {
+                                        if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
                                             numZero++;
-                                        } else if (mineGrid[testRow][testCol] == 15) {
+                                        } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
                                             numFlags++;
                                         }
                                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -170,7 +164,7 @@ public class Main {
                                         int testRow = i + y;
 
                                         try {
-                                            if (mineGrid[testRow][testCol] == 0) {
+                                            if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
                                                 int[] tilePos = screen.getTilePos(testRow, testCol);
                                                 screen.robot.mouseMove(tilePos[0], tilePos[1]);
                                                 screen.robot.mousePress(InputEvent.BUTTON1_MASK);
@@ -194,9 +188,9 @@ public class Main {
                     }
                 }
             }
-            for (int y = 0; y < ROWSIZE; y++) {
-                for (int x = 0; x < COLSIZE; x++) {
-                    if (mineGrid[y][x] != 0 && mineGrid[y][x] != 11 && mineGrid[y][x] != 15) {
+            for (int y = 0; y < ROW_SIZE; y++) {
+                for (int x = 0; x < COLUMN_SIZE; x++) {
+                    if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
                         int numZero = 0;
                         int numFlags = 0;
                         for (int i = -1; i < 2; i++) {
@@ -206,9 +200,9 @@ public class Main {
                                     int testRow = i + y;
 
                                     try {
-                                        if (mineGrid[testRow][testCol] == 0) {
+                                        if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
                                             numZero++;
-                                        } else if (mineGrid[testRow][testCol] == 15) {
+                                        } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
                                             numFlags++;
                                         }
                                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -232,7 +226,7 @@ public class Main {
                                         int testRow = i + y;
 
                                         try {
-                                            if (mineGrid[testRow][testCol] == 0) {
+                                            if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
                                                 if (numGuesses == 0) {
                                                     return;
                                                 }
@@ -269,12 +263,21 @@ public class Main {
 
 
     public static void main(String[] args) {
+        // Windows 8
         try {
             Runtime.getRuntime().exec("\"C:\\Program Files\\Microsoft Games\\Minesweeper\\minesweeper.exe\"");
         } catch (IOException e) {
             System.out.println("Couldn't run minesweeper!");
             e.printStackTrace();
         }
+
+// Windows 7
+//        try {
+//            Runtime.getRuntime().exec("C:\\Windows\\winsxs\\amd64_microsoft-windows-s..oxgames-minesweeper_31bf3856ad364e35_6.1.7600.16385_none_fe560f0352e04f48\\minesweeper.exe");
+//        } catch (IOException e) {
+//            System.out.println("Couldn't run minesweeper!");
+//            e.printStackTrace();
+//        }
 
         try {
             Thread.sleep(3000);
