@@ -2,7 +2,11 @@ package com.company;
 
 
 import java.awt.event.InputEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Random;
 
 
@@ -28,6 +32,7 @@ public class Main {
         gameOver = screen.fillMineGrid();
 
         if (gameOver) {
+            System.out.println("Game over!");
             screen.robot.mouseMove(screen.getMineGridTopCornerX() + 396, screen.getMineGridTopCornerY() + 210);
             screen.robot.mousePress(InputEvent.BUTTON1_MASK);
             Thread.sleep(50);
@@ -265,7 +270,7 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-            Runtime.getRuntime().exec("\"C:\\Program Files\\Microsoft Games\\Minesweeper\\minesweeper.exe\"");
+            Runtime.getRuntime().exec("cmd.exe /C Start \"\" \"%programfiles%\\Microsoft Games\\Minesweeper\\minesweeper.exe\"");
         } catch (IOException e) {
             System.out.println("Couldn't run minesweeper!");
             e.printStackTrace();
@@ -287,10 +292,18 @@ public class Main {
 
         Screen screen = new Screen();
 
+        screen.fillMineGrid();
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         try {
             while (true) {
                 doNextMove(screen);
-                Thread.sleep(50);
+                Thread.sleep(100);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
