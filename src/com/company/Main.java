@@ -292,13 +292,13 @@ public class Main {
 
         Screen screen = new Screen();
 
-        screen.fillMineGrid();
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        screen.fillMineGrid();
+//
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         try {
             while (true) {
