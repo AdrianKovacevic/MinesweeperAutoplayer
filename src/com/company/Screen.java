@@ -141,8 +141,8 @@ public class Screen {
 
 
 
-            mineGridTopCornerX = rect[0] + 37;
-            mineGridTopCornerY = rect[1] +  80;
+            mineGridTopCornerX = rect[0] + 36;
+            mineGridTopCornerY = rect[1] +  78;
             mineGridBottomCornerX = rect[2] - 37;
             mineGridBottomCornerY = rect[3] - 40;
 

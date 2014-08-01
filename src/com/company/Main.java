@@ -9,7 +9,7 @@ import java.util.Random;
 public class Main {
 
 
-    private static void doNextMove (Screen screen) throws InterruptedException {
+    public static void doNextMove (Screen screen) throws InterruptedException {
         final byte ROW_SIZE = 16;
         final byte COLUMN_SIZE = 30;
         final byte CELL_UNKNOWN = 0;
@@ -263,7 +263,7 @@ public class Main {
 
 
     public static void main(String[] args) {
-        // Windows 8
+
         try {
             Runtime.getRuntime().exec("\"C:\\Program Files\\Microsoft Games\\Minesweeper\\minesweeper.exe\"");
         } catch (IOException e) {
@@ -290,7 +290,7 @@ public class Main {
         try {
             while (true) {
                 doNextMove(screen);
-                Thread.sleep(400);
+                Thread.sleep(50);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
