@@ -6,22 +6,52 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 public class Screen {
 
-    final int ROW_SIZE = 16;
-    final int COLUMN_SIZE = 30;
-    final int CELL_UNKNOWN = 0;
-    final int CELL_ONE = 1;
-    final int CELL_TWO = 2;
-    final int CELL_THREE = 3;
-    final int CELL_FOUR = 4;
-    final int CELL_FIVE = 5;
-    final int CELL_SIX = 6;
-    final int CELL_SEVEN = 7;
-    final int CELL_BLANK = 11;
-    final int CELL_FLAG = 15;
+    final byte ROW_SIZE = 16;
+    final byte COLUMN_SIZE = 30;
+    final byte CELL_UNKNOWN = 0;
+    final byte CELL_ONE = 1;
+    final byte CELL_TWO = 2;
+    final byte CELL_THREE = 3;
+    final byte CELL_FOUR = 4;
+    final byte CELL_FIVE = 5;
+    final byte CELL_SIX = 6;
+    final byte CELL_SEVEN = 7;
+    final byte CELL_BLANK = 11;
+    final byte CELL_FLAG = 15;
+
+
+    private byte[][] mineGrid;
+
+    private BufferedImage screenShot;
+
+    private int screenWidth;
+
+    private int screenHeight;
+
+    public Robot robot;
+
+    private int mineGridTopCornerX;
+
+    private int mineGridTopCornerY;
+
+    private int mineGridBottomCornerX;
+
+    private int mineGridBottomCornerY;
+
+    // bug fixing purposes
+    public int one;
+    public int two;
+    public int three;
+    public int four;
+    public int five;
+    public int six;
+    public int blank;
+    public int flag;
 
     public Screen () {
         screenWidth = 0;
@@ -31,7 +61,7 @@ public class Screen {
         mineGridBottomCornerX = 0;
         mineGridBottomCornerY = 0;
         screenShot = null;
-        mineGrid = new int[ROW_SIZE][COLUMN_SIZE];
+        mineGrid = new byte[ROW_SIZE][COLUMN_SIZE];
         try {
             robot = new Robot();
         } catch (AWTException e) {
@@ -52,7 +82,7 @@ public class Screen {
         return screenShot;
     };
 
-    public int[][] getMineGrid() {
+    public byte[][] getMineGrid() {
         return mineGrid;
     };
 
@@ -79,7 +109,10 @@ public class Screen {
         takeScreenshot();
         boolean topCornerFound = false;
 
-        mineGrid = new int[ROW_SIZE][COLUMN_SIZE];
+        for (int y = 0; y < ROW_SIZE; y++) {
+            Arrays.fill(mineGrid[y], (byte) 0);
+        }
+
 
 // finds the corners by looking for a certain pixel, not good
 //            for (int y = 0; y < screenHeight; y++) {
@@ -269,33 +302,6 @@ public class Screen {
 
 
 
-    private int[][] mineGrid;
-
-    private BufferedImage screenShot;
-
-    private int screenWidth;
-
-    private int screenHeight;
-
-    public Robot robot;
-
-    private int mineGridTopCornerX;
-
-    private int mineGridTopCornerY;
-
-    private int mineGridBottomCornerX;
-
-    private int mineGridBottomCornerY;
-
-    // bug fixing purposes
-    public int one;
-    public int two;
-    public int three;
-    public int four;
-    public int five;
-    public int six;
-    public int blank;
-    public int flag;
 
 
 

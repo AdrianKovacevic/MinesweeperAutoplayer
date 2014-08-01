@@ -10,18 +10,18 @@ public class Main {
 
 
     private static void doNextMove (Screen screen) throws InterruptedException {
-        final int ROW_SIZE = 16;
-        final int COLUMN_SIZE = 30;
-        final int CELL_UNKNOWN = 0;
-        final int CELL_ONE = 1;
-        final int CELL_TWO = 2;
-        final int CELL_THREE = 3;
-        final int CELL_FOUR = 4;
-        final int CELL_FIVE = 5;
-        final int CELL_SIX = 6;
-        final int CELL_SEVEN = 7;
-        final int CELL_BLANK = 11;
-        final int CELL_FLAG = 15;
+        final byte ROW_SIZE = 16;
+        final byte COLUMN_SIZE = 30;
+        final byte CELL_UNKNOWN = 0;
+        final byte CELL_ONE = 1;
+        final byte CELL_TWO = 2;
+        final byte CELL_THREE = 3;
+        final byte CELL_FOUR = 4;
+        final byte CELL_FIVE = 5;
+        final byte CELL_SIX = 6;
+        final byte CELL_SEVEN = 7;
+        final byte CELL_BLANK = 11;
+        final byte CELL_FLAG = 15;
 
         boolean isEmpty = true;
         boolean gameOver;
@@ -37,7 +37,7 @@ public class Main {
             return;
         }
 
-        int[][] mineGrid = screen.getMineGrid();
+        byte[][] mineGrid = screen.getMineGrid();
 
         for (int y = 0; y < ROW_SIZE; y++) {
             for (int x = 0; x < COLUMN_SIZE; x++) {
