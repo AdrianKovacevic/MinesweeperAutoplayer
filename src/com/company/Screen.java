@@ -107,27 +107,25 @@ public class Screen {
         }
 
 
-        System.out.println("Moving... ");
-
 
             mineGridTopCornerX = rect[0] + 37;
             mineGridTopCornerY = rect[1] +  80;
             mineGridBottomCornerX = rect[2] - 37;
             mineGridBottomCornerY = rect[3] - 40;
 
-        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
-        Color colour2 = new Color(screenShot.getRGB(mineGridTopCornerX, mineGridTopCornerY));
-        int red2 = colour2.getRed();
-        int green2 = colour2.getGreen();
-        int blue2 = colour2.getBlue();
-                    System.out.println(red2 + " " + green2 + " " + blue2);
-                    BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX, mineGridTopCornerY, 10, 10);
-                    File outputfile = new File("saved.png");
-                    try {
-                        ImageIO.write(ss, "png", outputfile);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+//        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
+//        Color colour2 = new Color(screenShot.getRGB(mineGridTopCornerX, mineGridTopCornerY));
+//        int red2 = colour2.getRed();
+//        int green2 = colour2.getGreen();
+//        int blue2 = colour2.getBlue();
+//                    System.out.println(red2 + " " + green2 + " " + blue2);
+//                    BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX, mineGridTopCornerY, 10, 10);
+//                    File outputfile = new File("saved.png");
+//                    try {
+//                        ImageIO.write(ss, "png", outputfile);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
 
 
 
@@ -183,34 +181,34 @@ public class Screen {
                     if (red <= 230 && red > 160 && green <= 85 && green >= 0 &&  blue <= 90 && blue >= 0) {
                         //                    System.out.println("Three?");
                         three++;
-                        mineGrid[row][column % COLUMN_SIZE] = 3;
+                        mineGrid[row][column % COLUMN_SIZE] = CELL_THREE;
                         givenValue = true;
                     } else if (red <= 67 && red >= 55 && green <= 85 && green >= 75 &&  blue <= 195 && blue >= 185) {
                         colour = robot.getPixelColor(x, y + 2);
                         if (colour.getRed() >= 150 && colour.getGreen() >= 150) {
                             one++;
-                            mineGrid[row][column % COLUMN_SIZE] = 1;
+                            mineGrid[row][column % COLUMN_SIZE] = CELL_ONE;
                             givenValue = true;
                         }
                     } else if (red <= 230 && red >= 160 && green <= 245 && green >= 170 &&  blue <= 255 && blue >= 200) {
                         blank++;
-                        mineGrid[row][column % COLUMN_SIZE] = 11;
+                        mineGrid[row][column % COLUMN_SIZE] = CELL_BLANK;
                         givenValue = true;
                     }  else if (red <= 65 && red >= 10 && green <= 117 && green >= 97 &&  blue <= 50 && blue >= 0) {
                         two++;
-                        mineGrid[row][column % COLUMN_SIZE] = 2;
+                        mineGrid[row][column % COLUMN_SIZE] = CELL_TWO;
                         givenValue = true;
                     }  else if (red <= 153 && red >= 115 && green <= 90 && green >= 0 &&  blue <= 100 && blue >= 0) {
                         five++;
-                        mineGrid[row][column % COLUMN_SIZE] = 5;
+                        mineGrid[row][column % COLUMN_SIZE] = CELL_FIVE;
                         givenValue = true;
                     }  else if (red <= 20 && green <= 130 && green >= 119 &&  blue <= 130 && blue >= 115) {
                         six++;
-                        mineGrid[row][column % COLUMN_SIZE] = 6;
+                        mineGrid[row][column % COLUMN_SIZE] = CELL_SIX;
                         givenValue = true;
                     } else if (red <= 164 && red >= 150 && green <= 163 && green >= 150 &&  blue <= 170 && blue >= 156) {
                         flag++;
-                        mineGrid[row][column % COLUMN_SIZE] = 15;
+                        mineGrid[row][column % COLUMN_SIZE] = CELL_FLAG;
                         givenValue = true;
                     }
 
@@ -221,7 +219,7 @@ public class Screen {
                         blue = colour.getBlue();
                         if (red <= 40 && green <= 40 && blue <= 145 && blue >= 120) {
                             four++;
-                            mineGrid[row][column % COLUMN_SIZE] = 4;
+                            mineGrid[row][column % COLUMN_SIZE] = CELL_FOUR;
                         }
                     }
 
@@ -289,7 +287,7 @@ public class Screen {
 
     private int mineGridBottomCornerY;
 
-    // bugfixing purposes
+    // bug fixing purposes
     public int one;
     public int two;
     public int three;

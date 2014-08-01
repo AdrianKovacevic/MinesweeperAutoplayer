@@ -271,7 +271,7 @@ public class Main {
             e.printStackTrace();
         }
 
-// Windows 7
+//Windows 7
 //        try {
 //            Runtime.getRuntime().exec("C:\\Windows\\winsxs\\amd64_microsoft-windows-s..oxgames-minesweeper_31bf3856ad364e35_6.1.7600.16385_none_fe560f0352e04f48\\minesweeper.exe");
 //        } catch (IOException e) {
