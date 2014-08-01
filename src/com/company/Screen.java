@@ -5,10 +5,7 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.win32.W32APIOptions;
 
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +13,9 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 public class Screen {
+
+    final int ROWSIZE = 16;
+    final int COLSIZE = 30;
 
     public Screen () {
         screenWidth = 0;
@@ -25,10 +25,10 @@ public class Screen {
         mineGridBottomCornerX = 0;
         mineGridBottomCornerY = 0;
         screenShot = null;
-        mineGrid = new int[16][30];
+        mineGrid = new int[ROWSIZE][COLSIZE];
         try {
             robot = new Robot();
-        } catch (Exception e) {
+        } catch (AWTException e) {
             System.out.println("Couldn't make a robot!");
             e.printStackTrace();
         }
@@ -72,7 +72,8 @@ public class Screen {
         screenShot = null;
         takeScreenshot();
         boolean topCornerFound = false;
-        mineGrid = new int[16][30];
+
+        mineGrid = new int[ROWSIZE][COLSIZE];
 
 // finds the corners by looking for a certain pixel, not good
 //            for (int y = 0; y < screenHeight; y++) {
@@ -99,10 +100,28 @@ public class Screen {
             e.printStackTrace();
         }
 
-            mineGridTopCornerX = rect[0] + 36;
-            mineGridTopCornerY = rect[1] +  78;
+
+        System.out.println("Moving... ");
+
+
+            mineGridTopCornerX = rect[0] + 37;
+            mineGridTopCornerY = rect[1] +  80;
             mineGridBottomCornerX = rect[2] - 37;
             mineGridBottomCornerY = rect[3] - 40;
+
+        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
+        Color colour2 = new Color(screenShot.getRGB(mineGridTopCornerX, mineGridTopCornerY));
+        int red2 = colour2.getRed();
+        int green2 = colour2.getGreen();
+        int blue2 = colour2.getBlue();
+                    System.out.println(red2 + " " + green2 + " " + blue2);
+                    BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX, mineGridTopCornerY, 10, 10);
+                    File outputfile = new File("saved.png");
+                    try {
+                        ImageIO.write(ss, "png", outputfile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
 
 
@@ -158,34 +177,34 @@ public class Screen {
                     if (red <= 230 && red > 160 && green <= 85 && green >= 0 &&  blue <= 90 && blue >= 0) {
                         //                    System.out.println("Three?");
                         three++;
-                        mineGrid[row][column % 30] = 3;
+                        mineGrid[row][column % COLSIZE] = 3;
                         givenValue = true;
                     } else if (red <= 67 && red >= 55 && green <= 85 && green >= 75 &&  blue <= 195 && blue >= 185) {
                         colour = robot.getPixelColor(x, y + 2);
                         if (colour.getRed() >= 150 && colour.getGreen() >= 150) {
                             one++;
-                            mineGrid[row][column % 30] = 1;
+                            mineGrid[row][column % COLSIZE] = 1;
                             givenValue = true;
                         }
                     } else if (red <= 230 && red >= 160 && green <= 245 && green >= 170 &&  blue <= 255 && blue >= 200) {
                         blank++;
-                        mineGrid[row][column % 30] = 11;
+                        mineGrid[row][column % COLSIZE] = 11;
                         givenValue = true;
                     }  else if (red <= 65 && red >= 10 && green <= 117 && green >= 97 &&  blue <= 50 && blue >= 0) {
                         two++;
-                        mineGrid[row][column % 30] = 2;
+                        mineGrid[row][column % COLSIZE] = 2;
                         givenValue = true;
                     }  else if (red <= 153 && red >= 115 && green <= 90 && green >= 0 &&  blue <= 100 && blue >= 0) {
                         five++;
-                        mineGrid[row][column % 30] = 5;
+                        mineGrid[row][column % COLSIZE] = 5;
                         givenValue = true;
                     }  else if (red <= 20 && green <= 130 && green >= 119 &&  blue <= 130 && blue >= 115) {
                         six++;
-                        mineGrid[row][column % 30] = 6;
+                        mineGrid[row][column % COLSIZE] = 6;
                         givenValue = true;
                     } else if (red <= 164 && red >= 150 && green <= 163 && green >= 150 &&  blue <= 170 && blue >= 156) {
                         flag++;
-                        mineGrid[row][column % 30] = 15;
+                        mineGrid[row][column % COLSIZE] = 15;
                         givenValue = true;
                     }
 
@@ -196,7 +215,7 @@ public class Screen {
                         blue = colour.getBlue();
                         if (red <= 40 && green <= 40 && blue <= 145 && blue >= 120) {
                             four++;
-                            mineGrid[row][column % 30] = 4;
+                            mineGrid[row][column % COLSIZE] = 4;
                         }
                     }
 
@@ -264,6 +283,7 @@ public class Screen {
 
     private int mineGridBottomCornerY;
 
+    // bugfixing purposes
     public int one;
     public int two;
     public int three;

@@ -8,13 +8,27 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.ButtonModel;
 
 public class Main {
 
-    public static void doNextMove (Screen screen) throws InterruptedException {
+
+    private static void doNextMove (Screen screen) throws InterruptedException {
+        final int ROWSIZE = 16;
+        final int COLSIZE = 30;
+        final int CELL_BLANK = 0;
+        final int CELL_ONE = 1;
+        final int CELL_TWO = 2;
+        final int CELL_THREE = 3;
+        final int CELL_FOUR = 4;
+        final int CELL_FIVE = 5;
+        final int CELL_SIX = 6;
+        final int CELL_SEVEN = 7;
+        final int CELL_FLAG = 15;
+
         boolean isEmpty = true;
         boolean gameOver;
         gameOver = screen.fillMineGrid();
@@ -31,8 +45,8 @@ public class Main {
 
         int[][] mineGrid = screen.getMineGrid();
 
-        for (int y = 0; y < 16; y++) {
-            for (int x = 0; x < 30; x++) {
+        for (int y = 0; y < ROWSIZE; y++) {
+            for (int x = 0; x < COLSIZE; x++) {
                 if (mineGrid[y][x] != 0) {
                     isEmpty = false;
                 }
@@ -52,8 +66,8 @@ public class Main {
         } else {
 
 
-            for (int y = 0; y < 16; y++) {
-                for (int x = 0; x < 30; x++) {
+            for (int y = 0; y < ROWSIZE; y++) {
+                for (int x = 0; x < COLSIZE; x++) {
                     if (mineGrid[y][x] != 0 && mineGrid[y][x] != 11 && mineGrid[y][x] != 15) {
                         int numZero = 0;
                         int numFlags = 0;
@@ -64,14 +78,13 @@ public class Main {
                                     int testRow = i + y;
 
                                     try {
-                                        if (mineGrid[testRow][testCol] == 0) {
+                                        if (mineGrid[testRow][testCol] == CELL_BLANK) {
                                             numZero++;
-                                        } else if (mineGrid[testRow][testCol] == 15) {
+                                        } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
                                             numFlags++;
                                         }
-                                    } catch (Exception e) {
+                                    } catch (ArrayIndexOutOfBoundsException e) {
                                         System.out.println("Array out of bounds");
-
                                     }
                                 }
                             }
@@ -107,7 +120,7 @@ public class Main {
                                                 Thread.sleep(50);
                                                 screen.robot.mouseRelease(InputEvent.BUTTON3_MASK);
                                             }
-                                        } catch (Exception e) {
+                                        } catch (ArrayIndexOutOfBoundsException e) {
                                             System.out.println("Array out of bounds");
 
                                         }
@@ -121,8 +134,8 @@ public class Main {
                 }
             }
 
-            for (int y = 0; y < 16; y++) {
-                for (int x = 0; x < 30; x++) {
+            for (int y = 0; y < ROWSIZE; y++) {
+                for (int x = 0; x < COLSIZE; x++) {
                     if (mineGrid[y][x] != 0 && mineGrid[y][x] != 11 && mineGrid[y][x] != 15) {
                         int numZero = 0;
                         int numFlags = 0;
@@ -138,7 +151,7 @@ public class Main {
                                         } else if (mineGrid[testRow][testCol] == 15) {
                                             numFlags++;
                                         }
-                                    } catch (Exception e) {
+                                    } catch (ArrayIndexOutOfBoundsException e) {
                                         System.out.println("Array out of bounds");
 
                                     }
@@ -169,7 +182,7 @@ public class Main {
                                                 screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
                                                 return;
                                             }
-                                        } catch (Exception e) {
+                                        } catch (ArrayIndexOutOfBoundsException e) {
                                             System.out.println("Array out of bounds");
 
                                         }
@@ -181,8 +194,8 @@ public class Main {
                     }
                 }
             }
-            for (int y = 0; y < 16; y++) {
-                for (int x = 0; x < 30; x++) {
+            for (int y = 0; y < ROWSIZE; y++) {
+                for (int x = 0; x < COLSIZE; x++) {
                     if (mineGrid[y][x] != 0 && mineGrid[y][x] != 11 && mineGrid[y][x] != 15) {
                         int numZero = 0;
                         int numFlags = 0;
@@ -198,7 +211,7 @@ public class Main {
                                         } else if (mineGrid[testRow][testCol] == 15) {
                                             numFlags++;
                                         }
-                                    } catch (Exception e) {
+                                    } catch (ArrayIndexOutOfBoundsException e) {
                                         System.out.println("Array out of bounds");
 
                                     }
@@ -234,7 +247,7 @@ public class Main {
                                                 screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
                                                 numGuesses--;
                                             }
-                                        } catch (Exception e) {
+                                        } catch (ArrayIndexOutOfBoundsException e) {
                                             System.out.println("Array out of bounds");
 
                                         }
@@ -257,9 +270,10 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            Runtime.getRuntime().exec("cmd.exe /C START " + "C:\\Windows\\winsxs\\amd64_microsoft-windows-s..oxgames-minesweeper_31bf3856ad364e35_6.1.7600.16385_none_fe560f0352e04f48\\minesweeper.exe");
-        } catch (Exception e) {
+            Runtime.getRuntime().exec("\"C:\\Program Files\\Microsoft Games\\Minesweeper\\minesweeper.exe\"");
+        } catch (IOException e) {
             System.out.println("Couldn't run minesweeper!");
+            e.printStackTrace();
         }
 
         try {
