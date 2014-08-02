@@ -4,12 +4,8 @@ package com.company;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import javax.imageio.ImageIO;
 
 public class Screen {
 
@@ -25,6 +21,7 @@ public class Screen {
     final byte CELL_SEVEN = 7;
     final byte CELL_BLANK = 11;
     final byte CELL_FLAG = 15;
+    final byte CELL_SIDE_LENGTH = 18;
 
     final int[] CELL_ONE_COLOUR = {61, 80, 190};
     final int[] CELL_ONE_COLOUR_BESIDE = {62, 79, 190};
@@ -154,11 +151,14 @@ public class Screen {
 
         screenShot = null;
         takeScreenshot();
-        boolean topCornerFound = false;
+
 
         for (int y = 0; y < ROW_SIZE; y++) {
             Arrays.fill(mineGrid[y], (byte) 0);
         }
+
+
+
 
 
         int[] rect = new int[4];
@@ -191,9 +191,11 @@ public class Screen {
             int gameOverPopup = 0;
             int testNum = 0;
 
-            for (int y = mineGridTopCornerY + 17; y < mineGridBottomCornerY; y += 18) {
+        long startTime = System.nanoTime();
 
-                for (int x = mineGridTopCornerX + 13; x < mineGridBottomCornerX; x += 18) {
+        for (int y = mineGridTopCornerY + 17; y < mineGridBottomCornerY; y += CELL_SIDE_LENGTH) {
+
+                for (int x = mineGridTopCornerX + 13; x < mineGridBottomCornerX; x += CELL_SIDE_LENGTH) {
                     Color colour = new Color(screenShot.getRGB(x, y));
 
                     int[] colourRGBValues = new int[3];
@@ -201,6 +203,11 @@ public class Screen {
                     colourRGBValues[1] = colour.getGreen();
                     colourRGBValues[2] = colour.getBlue();
 
+
+//                    if (testNum == ROW_SIZE * row + COLUMN_SIZE * column % COLUMN_SIZE) {
+//                        robot.mouseMove(x, y);
+//                        System.out.println(colourRGBValues);
+//                    }
 
                     if (isColourMatch(colourRGBValues, GAMEOVER_COLOUR, 0)) {
                         gameOverPopup += 1;
@@ -276,6 +283,10 @@ public class Screen {
                 row++;
 
             }
+        long endTime = System.nanoTime();
+
+        double duration = (endTime - startTime) / 1000000000.0;
+        System.out.println(duration);
 
         return false;
 
@@ -283,8 +294,8 @@ public class Screen {
 
     public int[] getTilePos (int row, int column) {
         int[] tilePos = new int[2];
-        tilePos[0] = mineGridTopCornerX + 6 + (18 * column);
-        tilePos[1] = mineGridTopCornerY + 6 + (18 * row);
+        tilePos[0] = mineGridTopCornerX + 6 + (CELL_SIDE_LENGTH * column);
+        tilePos[1] = mineGridTopCornerY + 6 + (CELL_SIDE_LENGTH * row);
 
         return tilePos;
     };

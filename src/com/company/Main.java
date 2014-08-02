@@ -2,11 +2,7 @@ package com.company;
 
 
 import java.awt.event.InputEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Random;
 
 
@@ -26,6 +22,9 @@ public class Main {
         final byte CELL_SEVEN = 7;
         final byte CELL_BLANK = 11;
         final byte CELL_FLAG = 15;
+        final int PLAYAGAIN_BUTTON_X_DISTANCE = 396;
+        final int PLAYAGAIN_BUTTON_Y_DISTANCE = 210;
+
 
         boolean isEmpty = true;
         boolean gameOver;
@@ -33,11 +32,12 @@ public class Main {
 
         if (gameOver) {
             System.out.println("Game over!");
-            screen.robot.mouseMove(screen.getMineGridTopCornerX() + 396, screen.getMineGridTopCornerY() + 210);
+            screen.robot.mouseMove(screen.getMineGridTopCornerX() + PLAYAGAIN_BUTTON_X_DISTANCE, screen.getMineGridTopCornerY() + PLAYAGAIN_BUTTON_Y_DISTANCE);
             screen.robot.mousePress(InputEvent.BUTTON1_MASK);
             Thread.sleep(50);
             screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
             screen.robot.mouseMove(screen.getMineGridTopCornerX(), screen.getMineGridTopCornerY());
+            // waiting for the animation to resolve
             Thread.sleep(2000);
             return;
         }
@@ -292,21 +292,22 @@ public class Main {
 
         Screen screen = new Screen();
 
-//        screen.fillMineGrid();
-//
+        for (int i = 0; i < 5; i++) {
+
+            screen.fillMineGrid();
+
+        }
+
+
+        // make sure it is not highlighting a cell, causing errors in cell recognition
+//        screen.robot.mouseMove(20, 20);
 //        try {
-//            Thread.sleep(3000);
+//            while (true) {
+//                doNextMove(screen);
+//                Thread.sleep(100);
+//            }
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-
-        try {
-            while (true) {
-                doNextMove(screen);
-                Thread.sleep(100);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }
