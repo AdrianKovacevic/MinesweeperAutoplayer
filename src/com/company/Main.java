@@ -2,6 +2,7 @@ package com.company;
 
 
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.Random;
 
@@ -36,12 +37,18 @@ public class Main {
 
         if (gameOver) {
             System.out.println("Game over!");
-            screen.robot.mouseMove(screen.getMineGridTopCornerX() + PLAYAGAIN_BUTTON_X_DISTANCE, screen.getMineGridTopCornerY() + PLAYAGAIN_BUTTON_Y_DISTANCE);
-            screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-            Thread.sleep(50);
-            screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-            screen.robot.mouseMove(screen.getMineGridTopCornerX(), screen.getMineGridTopCornerY());
+//            screen.robot.mouseMove(screen.getMineGridTopCornerX() + PLAYAGAIN_BUTTON_X_DISTANCE, screen.getMineGridTopCornerY() + PLAYAGAIN_BUTTON_Y_DISTANCE);
+//            screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+//            Thread.sleep(50);
+//            screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+//            screen.robot.mouseMove(screen.getMineGridTopCornerX(), screen.getMineGridTopCornerY());
             // waiting for the animation to resolve
+
+            screen.robot.mouseMove(20, 20);
+            screen.robot.keyPress(KeyEvent.VK_ENTER);
+            Thread.sleep(50);
+            screen.robot.keyRelease(KeyEvent.VK_ENTER
+            );
             Thread.sleep(2000);
             return;
         }
@@ -58,8 +65,9 @@ public class Main {
 
         if (isEmpty) {
             Random rand = new Random();
-            int randomX = rand.nextInt(((screen.getMineGridBottomCornerX() - 1) - (screen.getMineGridTopCornerX()) + 1)) + (screen.getMineGridTopCornerX() + 1);
-            int randomY = rand.nextInt(((screen.getMineGridBottomCornerY() - 1) - (screen.getMineGridTopCornerY()) + 1)) + (screen.getMineGridTopCornerY() + 1);
+            // clicks a random cell, but does not touch the edges as they are usually bad to start off with
+            int randomX = rand.nextInt(((screen.getMineGridBottomCornerX() - 20) - (screen.getMineGridTopCornerX()) + 20)) + (screen.getMineGridTopCornerX() + 20);
+            int randomY = rand.nextInt(((screen.getMineGridBottomCornerY() - 20) - (screen.getMineGridTopCornerY()) + 20)) + (screen.getMineGridTopCornerY() + 20);
 
             screen.robot.mouseMove(randomX, randomY);
             screen.robot.mousePress(InputEvent.BUTTON1_MASK);
@@ -96,7 +104,7 @@ public class Main {
                                             numFlags++;
                                         }
                                     } catch (ArrayIndexOutOfBoundsException e) {
-                                        System.out.println("Array out of bounds");
+                                        //System.out.println("Array out of bounds");
                                     }
                                 }
                             }
@@ -133,7 +141,7 @@ public class Main {
                                                 screen.robot.mouseRelease(InputEvent.BUTTON3_MASK);
                                             }
                                         } catch (ArrayIndexOutOfBoundsException e) {
-                                            System.out.println("Array out of bounds");
+                                          //  System.out.println("Array out of bounds");
 
                                         }
                                     }
@@ -164,7 +172,7 @@ public class Main {
                                             numFlags++;
                                         }
                                     } catch (ArrayIndexOutOfBoundsException e) {
-                                        System.out.println("Array out of bounds");
+                                       // System.out.println("Array out of bounds");
 
                                     }
                                 }
@@ -195,7 +203,7 @@ public class Main {
                                                 return;
                                             }
                                         } catch (ArrayIndexOutOfBoundsException e) {
-                                            System.out.println("Array out of bounds");
+//                                            System.out.println("Array out of bounds");
 
                                         }
                                     }
@@ -224,7 +232,7 @@ public class Main {
                                             numFlags++;
                                         }
                                     } catch (ArrayIndexOutOfBoundsException e) {
-                                        System.out.println("Array out of bounds");
+//                                        System.out.println("Array out of bounds");
 
                                     }
                                 }
@@ -260,7 +268,7 @@ public class Main {
                                                 numGuesses--;
                                             }
                                         } catch (ArrayIndexOutOfBoundsException e) {
-                                            System.out.println("Array out of bounds");
+                                           // System.out.println("Array out of bounds");
 
                                         }
                                     }
@@ -284,18 +292,15 @@ public class Main {
 
         try {
             Runtime.getRuntime().exec("cmd.exe /C Start \"\" \"%programfiles%\\Microsoft Games\\Minesweeper\\minesweeper.exe\"");
-        } catch (IOException e) {
-            System.out.println("Couldn't run minesweeper!");
-            e.printStackTrace();
-        }
+    } catch (IOException e) {
+        System.out.println("Couldn't run minesweeper!");
+        e.printStackTrace();
+    }
 
-//Windows 7
-//        try {
-//            Runtime.getRuntime().exec("C:\\Windows\\winsxs\\amd64_microsoft-windows-s..oxgames-minesweeper_31bf3856ad364e35_6.1.7600.16385_none_fe560f0352e04f48\\minesweeper.exe");
-//        } catch (IOException e) {
-//            System.out.println("Couldn't run minesweeper!");
-//            e.printStackTrace();
-//        }
+        System.out.println("This program only works on Windows 7 so far. Also, make sure that you are using blue tiles," +
+                "playing on advanced, and that the window size is as small as possible.");
+
+
 
         try {
             Thread.sleep(3000);
@@ -316,12 +321,12 @@ public class Main {
         screen.robot.mouseMove(20, 20);
         try {
             while (true) {
-                long startTime = System.nanoTime();
+//                long startTime = System.nanoTime();
                 doNextMove(screen);
-                long endTime = System.nanoTime();
-                double duration = (endTime - startTime) / 1000000000.0;
-                System.out.println("The duration is: " + duration);
-                Thread.sleep(100);
+//                long endTime = System.nanoTime();
+//                double duration = (endTime - startTime) / 1000000000.0;
+//                System.out.println("The duration is: " + duration);
+                Thread.sleep(200);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

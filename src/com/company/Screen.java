@@ -197,6 +197,9 @@ public class Screen {
 
                 for (int x = mineGridTopCornerX + 13; x < mineGridBottomCornerX; x += CELL_SIDE_LENGTH) {
 
+                    // the culprit for the extreme slowness was the robot.getPixelColor method, which was called
+                    // every time it thought it found a one
+
                     Color colour = new Color(screenShot.getRGB(x, y));
 
                     int[] colourRGBValues = new int[3];
@@ -222,6 +225,14 @@ public class Screen {
                     colourRightRGBValues[0] = colourRight.getRed();
                     colourRightRGBValues[1] = colourRight.getGreen();
                     colourRightRGBValues[2] = colourRight.getBlue();
+
+                    Color colourFarBelow = new Color(screenShot.getRGB(x, y + 2));
+
+                    int[] colourFarBelowRGBValues = new int[3];
+
+                    colourFarBelowRGBValues[0] = colourFarBelow.getRed();
+                    colourFarBelowRGBValues[1] = colourFarBelow.getGreen();
+                    colourFarBelowRGBValues[2] = colourFarBelow.getBlue();
 //                    robot.mouseMove(x, y);
 
 
@@ -264,22 +275,16 @@ public class Screen {
                     }
 
 
-                    boolean givenValue = false;
 
-
-                    // new idea: calculate Euclidean distance between all known pixel colours and the given one
-                    // lowest distance means the given pixel is the known pixel, fill array cell accordingly
-                    // probably faster, possibly more accurate
 
                     if (isColourMatch(colourRightRGBValues, CELL_FOUR_COLOUR, 15) ) {
                         four.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                         mineGrid[row][column % COLUMN_SIZE] = CELL_FOUR;
                     } else if (isColourMatch(colourRGBValues, CELL_THREE_COLOUR, 30) || isColourMatch(colourAboveRGBValues, CELL_THREE_COLOUR, 30)) {
-                        //                    System.out.println("Three?");
                         three.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                         mineGrid[row][column % COLUMN_SIZE] = CELL_THREE;
 
-                    } else if (Math.abs(colourRGBValues[0] - 62) < 4 && Math.abs(colourRGBValues[1] - 80) < 2 && Math.abs(colourRGBValues[2] - 189) < 2) {
+                    } else if (Math.abs(colourRGBValues[0] - 62) < 4 && Math.abs(colourRGBValues[1] - 80) < 2 && Math.abs(colourRGBValues[2] - 189) < 2 && colourFarBelowRGBValues[0] >= 150 && colourFarBelowRGBValues[1] >= 150) {
                             one.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                             mineGrid[row][column % COLUMN_SIZE] = CELL_ONE;
                     } else if (colourRGBValues[0] <= 230 && colourRGBValues[0] >= 160 && colourRGBValues[1] <= 245 && colourRGBValues[1] >= 170 &&  colourRGBValues[2] <= 255 && colourRGBValues[2] >= 200) {
