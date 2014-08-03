@@ -22,6 +22,10 @@ public class Main {
         final byte CELL_SEVEN = 7;
         final byte CELL_BLANK = 11;
         final byte CELL_FLAG = 15;
+        final byte FLAG_MAXSIZE = 99;
+        final byte FINAL_ROW_INDEX = 15;
+        final byte FINAL_COLUMN_INDEX = 29;
+
         final int PLAYAGAIN_BUTTON_X_DISTANCE = 396;
         final int PLAYAGAIN_BUTTON_Y_DISTANCE = 210;
 
@@ -65,9 +69,18 @@ public class Main {
         } else {
 
 
+
+
             for (int y = 0; y < ROW_SIZE; y++) {
                 for (int x = 0; x < COLUMN_SIZE; x++) {
-                    if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
+                    if (screen.flag.size() == FLAG_MAXSIZE && mineGrid[y][x] == CELL_UNKNOWN) {
+                        int[] tilePos = screen.getTilePos(y, x);
+                        screen.robot.mouseMove(tilePos[0], tilePos[1]);
+                        screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                        Thread.sleep(50);
+                        screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                        return;
+                    } else if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
                         int numZero = 0;
                         int numFlags = 0;
                         for (int i = -1; i < 2; i++) {
@@ -292,22 +305,26 @@ public class Main {
 
         Screen screen = new Screen();
 
-        for (int i = 0; i < 5; i++) {
-
-            screen.fillMineGrid();
-
-        }
+//        for (int i = 0; i < 5; i++) {
+//
+//            screen.fillMineGrid();
+//            screen.getMineGrid();
+//        }
 
 
         // make sure it is not highlighting a cell, causing errors in cell recognition
-//        screen.robot.mouseMove(20, 20);
-//        try {
-//            while (true) {
-//                doNextMove(screen);
-//                Thread.sleep(100);
-//            }
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        screen.robot.mouseMove(20, 20);
+        try {
+            while (true) {
+                long startTime = System.nanoTime();
+                doNextMove(screen);
+                long endTime = System.nanoTime();
+                double duration = (endTime - startTime) / 1000000000.0;
+                System.out.println("The duration is: " + duration);
+                Thread.sleep(100);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

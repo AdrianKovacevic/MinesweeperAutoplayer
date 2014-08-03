@@ -24,12 +24,12 @@ public class Screen {
     final byte CELL_SIDE_LENGTH = 18;
 
     final int[] CELL_ONE_COLOUR = {61, 80, 190};
-    final int[] CELL_ONE_COLOUR_BESIDE = {62, 79, 190};
+    //final int[] CELL_ONE_COLOUR_BESIDE = {62, 79, 190};
     final int[] CELL_TWO_COLOUR = {30, 103, 2};
-    final int[] CELL_THREE_COLOUR = {168, 25, 28};
-    final int[] CELL_FOUR_COLOUR = {0, 2, 129};
-    final int[] CELL_FIVE_COLOUR = {134, 50, 45};
-    final int[] CELL_SIX_COLOUR = {10, 123, 125};
+    final int[] CELL_THREE_COLOUR = {170, 8, 8};
+    final int[] CELL_FOUR_COLOUR = {1, 1, 130};
+    final int[] CELL_FIVE_COLOUR = {129, 1, 1};
+    final int[] CELL_SIX_COLOUR = {5, 125, 122};
     final int[] CELL_SEVEN_COLOUR = {};
     final int[] CELL_BLANK_COLOUR = {172, 181, 212};
     final int[] CELL_FLAG_COLOUR = {161, 159, 162};
@@ -126,6 +126,8 @@ public class Screen {
     };
 
     private static boolean isColourMatch (int[] givenColourRGB, int[] expectedColourRGB, double tolerance) {
+
+
         double colourDifferenceResultant;
         double redDifferenceSquared;
         double greenDifferenceSquared;
@@ -148,7 +150,6 @@ public class Screen {
 
 
     public boolean fillMineGrid() {
-
         screenShot = null;
         takeScreenshot();
 
@@ -191,23 +192,57 @@ public class Screen {
             int gameOverPopup = 0;
             int testNum = 0;
 
-        long startTime = System.nanoTime();
 
         for (int y = mineGridTopCornerY + 17; y < mineGridBottomCornerY; y += CELL_SIDE_LENGTH) {
 
                 for (int x = mineGridTopCornerX + 13; x < mineGridBottomCornerX; x += CELL_SIDE_LENGTH) {
+
                     Color colour = new Color(screenShot.getRGB(x, y));
 
                     int[] colourRGBValues = new int[3];
+
                     colourRGBValues[0] = colour.getRed();
                     colourRGBValues[1] = colour.getGreen();
                     colourRGBValues[2] = colour.getBlue();
 
+                    Color colourAbove = new Color(screenShot.getRGB(x, y - 1));
 
-//                    if (testNum == ROW_SIZE * row + COLUMN_SIZE * column % COLUMN_SIZE) {
+
+                    int[] colourAboveRGBValues = new int[3];
+
+                    colourAboveRGBValues[0] = colourAbove.getRed();
+                    colourAboveRGBValues[1] = colourAbove.getGreen();
+                    colourAboveRGBValues[2] = colourAbove.getBlue();
+
+
+                    Color colourRight = new Color(screenShot.getRGB(x + 1, y));
+
+                    int[] colourRightRGBValues = new int[3];
+
+                    colourRightRGBValues[0] = colourRight.getRed();
+                    colourRightRGBValues[1] = colourRight.getGreen();
+                    colourRightRGBValues[2] = colourRight.getBlue();
+//                    robot.mouseMove(x, y);
+
+
+
+
+//                    if (testNum == COLUMN_SIZE * 2
+//                            + 2) {
 //                        robot.mouseMove(x, y);
 //                        System.out.println(colourRGBValues);
+//
+//                        colour = new Color(screenShot.getRGB(x, y - 1));
+//
+//                        colourRGBValues = new int[3];
+//
+//                        colourRGBValues[0] = colour.getRed();
+//                        colourRGBValues[1] = colour.getGreen();
+//                        colourRGBValues[2] = colour.getBlue();
+//                        System.out.println(colourRGBValues);
+//
 //                    }
+
 
                     if (isColourMatch(colourRGBValues, GAMEOVER_COLOUR, 0)) {
                         gameOverPopup += 1;
@@ -228,54 +263,42 @@ public class Screen {
                         }
                     }
 
+
                     boolean givenValue = false;
 
 
+                    // new idea: calculate Euclidean distance between all known pixel colours and the given one
+                    // lowest distance means the given pixel is the known pixel, fill array cell accordingly
+                    // probably faster, possibly more accurate
 
-                    if (isColourMatch(colourRGBValues, CELL_THREE_COLOUR, 90)) {
+                    if (isColourMatch(colourRightRGBValues, CELL_FOUR_COLOUR, 15) ) {
+                        four.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
+                        mineGrid[row][column % COLUMN_SIZE] = CELL_FOUR;
+                    } else if (isColourMatch(colourRGBValues, CELL_THREE_COLOUR, 30) || isColourMatch(colourAboveRGBValues, CELL_THREE_COLOUR, 30)) {
                         //                    System.out.println("Three?");
                         three.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                         mineGrid[row][column % COLUMN_SIZE] = CELL_THREE;
-                        givenValue = true;
-                    } else if (isColourMatch(colourRGBValues, CELL_ONE_COLOUR, 10)) {
-                        Color blueColour = robot.getPixelColor(x, y + 2);
-                        if (blueColour.getRed() >= 150 && blueColour.getGreen() >= 150) {
+
+                    } else if (Math.abs(colourRGBValues[0] - 62) < 4 && Math.abs(colourRGBValues[1] - 80) < 2 && Math.abs(colourRGBValues[2] - 189) < 2) {
                             one.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                             mineGrid[row][column % COLUMN_SIZE] = CELL_ONE;
-                            givenValue = true;
-                        }
                     } else if (colourRGBValues[0] <= 230 && colourRGBValues[0] >= 160 && colourRGBValues[1] <= 245 && colourRGBValues[1] >= 170 &&  colourRGBValues[2] <= 255 && colourRGBValues[2] >= 200) {
                         blank.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                         mineGrid[row][column % COLUMN_SIZE] = CELL_BLANK;
-                        givenValue = true;
                     }  else if (isColourMatch(colourRGBValues, CELL_TWO_COLOUR, 30)) {
                         two.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                         mineGrid[row][column % COLUMN_SIZE] = CELL_TWO;
-                        givenValue = true;
-                    }  else if (isColourMatch(colourRGBValues, CELL_FIVE_COLOUR, 70)) {
+                    }  else if (isColourMatch(colourRGBValues, CELL_FIVE_COLOUR, 20) || isColourMatch(colourAboveRGBValues, CELL_FIVE_COLOUR, 20)) {
                         five.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                         mineGrid[row][column % COLUMN_SIZE] = CELL_FIVE;
-                        givenValue = true;
-                    }  else if (isColourMatch(colourRGBValues, CELL_SIX_COLOUR, 30)) {
+                    }  else if (isColourMatch(colourRGBValues, CELL_SIX_COLOUR, 20) || isColourMatch(colourAboveRGBValues, CELL_SIX_COLOUR, 20)) {
                         six.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                         mineGrid[row][column % COLUMN_SIZE] = CELL_SIX;
-                        givenValue = true;
                     } else if (isColourMatch(colourRGBValues, CELL_FLAG_COLOUR, 35)) {
                         flag.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                         mineGrid[row][column % COLUMN_SIZE] = CELL_FLAG;
-                        givenValue = true;
                     }
 
-                    if (givenValue == false) {
-                        colour = new Color(screenShot.getRGB(x + 1, y));
-                        colourRGBValues[0] = colour.getRed();
-                        colourRGBValues[1] = colour.getGreen();
-                        colourRGBValues[2] = colour.getBlue();
-                        if (isColourMatch(colourRGBValues, CELL_FOUR_COLOUR, 30)) {
-                            four.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                            mineGrid[row][column % COLUMN_SIZE] = CELL_FOUR;
-                        }
-                    }
 
                     column++;
                     testNum++;
@@ -283,10 +306,8 @@ public class Screen {
                 row++;
 
             }
-        long endTime = System.nanoTime();
 
-        double duration = (endTime - startTime) / 1000000000.0;
-        System.out.println(duration);
+
 
         return false;
 
