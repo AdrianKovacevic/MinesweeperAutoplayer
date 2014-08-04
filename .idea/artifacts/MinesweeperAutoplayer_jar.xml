@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="MinesweeperAutoplayer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MinesweeperAutoplayer_jar</output-path>
+    <root id="archive" name="MinesweeperAutoplayer.jar">
+      <element id="module-output" name="MinesweeperAutoplayer" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/dependencies/jna-platform-4.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/dependencies/jna-4.1.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

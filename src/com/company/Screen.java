@@ -23,8 +23,8 @@ public class Screen {
     final byte CELL_FLAG = 15;
     final byte CELL_SIDE_LENGTH = 18;
 
+
     final int[] CELL_ONE_COLOUR = {61, 80, 190};
-    //final int[] CELL_ONE_COLOUR_BESIDE = {62, 79, 190};
     final int[] CELL_TWO_COLOUR = {30, 103, 2};
     final int[] CELL_THREE_COLOUR = {170, 8, 8};
     final int[] CELL_FOUR_COLOUR = {1, 1, 130};
@@ -34,6 +34,8 @@ public class Screen {
     final int[] CELL_BLANK_COLOUR = {172, 181, 212};
     final int[] CELL_FLAG_COLOUR = {161, 159, 162};
     final int[] GAMEOVER_COLOUR = {240, 240, 240};
+
+    final int numCores;
 
     private byte[][] mineGrid;
 
@@ -52,6 +54,8 @@ public class Screen {
     private int mineGridBottomCornerX;
 
     private int mineGridBottomCornerY;
+
+    private byte numFlags;
 
     // bug fixing purposes
 
@@ -73,6 +77,7 @@ public class Screen {
         mineGridTopCornerY = 0;
         mineGridBottomCornerX = 0;
         mineGridBottomCornerY = 0;
+        numFlags = 0;
         screenShot = null;
         one = new ArrayList<String>();
         two = new ArrayList<String>();
@@ -83,6 +88,7 @@ public class Screen {
         seven = new ArrayList<String>();
         blank = new ArrayList<String>();
         flag = new ArrayList<String>();
+        numCores = Runtime.getRuntime().availableProcessors();
 
         mineGrid = new byte[ROW_SIZE][COLUMN_SIZE];
         try {
@@ -124,6 +130,8 @@ public class Screen {
     public int getMineGridTopCornerX() {
         return mineGridTopCornerX;
     };
+
+    public byte getNumFlaggedMines() { return numFlags; };
 
     private static boolean isColourMatch (int[] givenColourRGB, int[] expectedColourRGB, double tolerance) {
 
@@ -178,9 +186,6 @@ public class Screen {
             mineGridBottomCornerY = rect[3] - 40;
 
 
-
-            int row = 0;
-            int column = 0;
             one.clear();
             two.clear();
             three.clear();
@@ -189,16 +194,27 @@ public class Screen {
             six.clear();
             blank.clear();
             flag.clear();
+
+            numFlags = 0;
+
             int gameOverPopup = 0;
             int testNum = 0;
+            // 17 and 13 are offset values from the top corner of the mine grid to a certain pixel on each cell, to
+            // best determine what the cell contains
+            int y = mineGridTopCornerY + 17;
 
 
-        for (int y = mineGridTopCornerY + 17; y < mineGridBottomCornerY; y += CELL_SIDE_LENGTH) {
+        for (int row = 0; row < ROW_SIZE; row++) {
 
-                for (int x = mineGridTopCornerX + 13; x < mineGridBottomCornerX; x += CELL_SIDE_LENGTH) {
+            int x = mineGridTopCornerX + 13;
+
+
+            for (int column = 0; column < COLUMN_SIZE; column++) {
 
                     // the culprit for the extreme slowness was the robot.getPixelColor method, which was called
                     // every time it thought it found a one
+
+
 
                     Color colour = new Color(screenShot.getRGB(x, y));
 
@@ -279,36 +295,40 @@ public class Screen {
 
                     if (isColourMatch(colourRightRGBValues, CELL_FOUR_COLOUR, 15) ) {
                         four.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column % COLUMN_SIZE] = CELL_FOUR;
+                        mineGrid[row][column] = CELL_FOUR;
                     } else if (isColourMatch(colourRGBValues, CELL_THREE_COLOUR, 30) || isColourMatch(colourAboveRGBValues, CELL_THREE_COLOUR, 30)) {
                         three.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column % COLUMN_SIZE] = CELL_THREE;
+                        mineGrid[row][column] = CELL_THREE;
 
                     } else if (Math.abs(colourRGBValues[0] - 62) < 4 && Math.abs(colourRGBValues[1] - 80) < 2 && Math.abs(colourRGBValues[2] - 189) < 2 && colourFarBelowRGBValues[0] >= 150 && colourFarBelowRGBValues[1] >= 150) {
                             one.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                            mineGrid[row][column % COLUMN_SIZE] = CELL_ONE;
+                            mineGrid[row][column] = CELL_ONE;
                     } else if (colourRGBValues[0] <= 230 && colourRGBValues[0] >= 160 && colourRGBValues[1] <= 245 && colourRGBValues[1] >= 170 &&  colourRGBValues[2] <= 255 && colourRGBValues[2] >= 200) {
                         blank.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column % COLUMN_SIZE] = CELL_BLANK;
+                        mineGrid[row][column] = CELL_BLANK;
                     }  else if (isColourMatch(colourRGBValues, CELL_TWO_COLOUR, 30)) {
                         two.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column % COLUMN_SIZE] = CELL_TWO;
+                        mineGrid[row][column] = CELL_TWO;
                     }  else if (isColourMatch(colourRGBValues, CELL_FIVE_COLOUR, 20) || isColourMatch(colourAboveRGBValues, CELL_FIVE_COLOUR, 20)) {
                         five.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column % COLUMN_SIZE] = CELL_FIVE;
+                        mineGrid[row][column] = CELL_FIVE;
                     }  else if (isColourMatch(colourRGBValues, CELL_SIX_COLOUR, 20) || isColourMatch(colourAboveRGBValues, CELL_SIX_COLOUR, 20)) {
                         six.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column % COLUMN_SIZE] = CELL_SIX;
+                        mineGrid[row][column] = CELL_SIX;
                     } else if (isColourMatch(colourRGBValues, CELL_FLAG_COLOUR, 35)) {
                         flag.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column % COLUMN_SIZE] = CELL_FLAG;
+                        numFlags++;
+                        mineGrid[row][column] = CELL_FLAG;
                     }
 
+                    // move on to next cell, by moving the x coordinate exactly one cell length further
 
-                    column++;
+                    x += CELL_SIDE_LENGTH;
+
                     testNum++;
                 }
-                row++;
+
+                y += CELL_SIDE_LENGTH;
 
             }
 

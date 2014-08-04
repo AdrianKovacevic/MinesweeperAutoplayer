@@ -81,7 +81,7 @@ public class Main {
 
             for (int y = 0; y < ROW_SIZE; y++) {
                 for (int x = 0; x < COLUMN_SIZE; x++) {
-                    if (screen.flag.size() == FLAG_MAXSIZE && mineGrid[y][x] == CELL_UNKNOWN) {
+                    if (screen.getNumFlaggedMines() == FLAG_MAXSIZE && mineGrid[y][x] == CELL_UNKNOWN) {
                         int[] tilePos = screen.getTilePos(y, x);
                         screen.robot.mouseMove(tilePos[0], tilePos[1]);
                         screen.robot.mousePress(InputEvent.BUTTON1_MASK);
