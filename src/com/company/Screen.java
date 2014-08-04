@@ -35,8 +35,6 @@ public class Screen {
     final int[] CELL_FLAG_COLOUR = {161, 159, 162};
     final int[] GAMEOVER_COLOUR = {240, 240, 240};
 
-    final int numCores;
-
     private byte[][] mineGrid;
 
     private BufferedImage screenShot;
@@ -56,6 +54,8 @@ public class Screen {
     private int mineGridBottomCornerY;
 
     private byte numFlags;
+
+    final private ArrayList<Integer> tasksPerThread;
 
     // bug fixing purposes
 
@@ -88,7 +88,9 @@ public class Screen {
         seven = new ArrayList<String>();
         blank = new ArrayList<String>();
         flag = new ArrayList<String>();
-        numCores = Runtime.getRuntime().availableProcessors();
+        tasksPerThread = new ArrayList<Integer>();
+
+        getTasksPerThread(tasksPerThread);
 
         mineGrid = new byte[ROW_SIZE][COLUMN_SIZE];
         try {
@@ -98,6 +100,23 @@ public class Screen {
             e.printStackTrace();
         }
     };
+
+    private void getTasksPerThread (ArrayList<Integer> tasksPerThread) {
+        int numCores = Runtime.getRuntime().availableProcessors();
+        int totalTasks = ROW_SIZE * COLUMN_SIZE;
+        int minNumThreadsPerCore = totalTasks / numCores;
+        int remainingThreads = totalTasks % numCores;
+
+        for (int i = 0; i < numCores; i++) {
+            tasksPerThread.add(minNumThreadsPerCore);
+        }
+
+        for (int i = 0; i < remainingThreads; i++) {
+            tasksPerThread.set(i, tasksPerThread.get(i) + 1);
+        }
+
+        return;
+    }
 
     public int getScreenHeight() {
         return screenHeight;
@@ -161,22 +180,20 @@ public class Screen {
         screenShot = null;
         takeScreenshot();
 
-
         for (int y = 0; y < ROW_SIZE; y++) {
             Arrays.fill(mineGrid[y], (byte) 0);
         }
-
-
-
-
 
         int[] rect = new int[4];
         try {
             rect = GetWindowRect.getRect("Minesweeper");
         } catch (GetWindowRect.WindowNotFoundException e) {
             e.printStackTrace();
+            // better exit that actually closes the program when it has an exception
+            assert(false);
         } catch (GetWindowRect.GetWindowRectException e) {
             e.printStackTrace();
+            assert(false);
         }
 
 

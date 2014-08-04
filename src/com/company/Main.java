@@ -37,18 +37,14 @@ public class Main {
 
         if (gameOver) {
             System.out.println("Game over!");
-//            screen.robot.mouseMove(screen.getMineGridTopCornerX() + PLAYAGAIN_BUTTON_X_DISTANCE, screen.getMineGridTopCornerY() + PLAYAGAIN_BUTTON_Y_DISTANCE);
-//            screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-//            Thread.sleep(50);
-//            screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-//            screen.robot.mouseMove(screen.getMineGridTopCornerX(), screen.getMineGridTopCornerY());
-            // waiting for the animation to resolve
-
             screen.robot.mouseMove(20, 20);
-            screen.robot.keyPress(KeyEvent.VK_ENTER);
+            screen.robot.keyPress(KeyEvent.VK_ALT);
             Thread.sleep(50);
-            screen.robot.keyRelease(KeyEvent.VK_ENTER
-            );
+            screen.robot.keyPress(KeyEvent.VK_P);
+            Thread.sleep(50);
+            screen.robot.keyRelease(KeyEvent.VK_P);
+            Thread.sleep(50);
+            screen.robot.keyRelease(KeyEvent.VK_ALT);
             Thread.sleep(2000);
             return;
         }
@@ -153,6 +149,10 @@ public class Main {
                     }
                 }
             }
+
+            // put guessing algorithm in a larger for loop, from 1 to 7, depending on how many guesses it needs to make
+            // if no guesses possible around a number, then finally just guess on other unknown cells since some mines
+            // are left (previous check for 99 flags)
 
             for (int y = 0; y < ROW_SIZE; y++) {
                 for (int x = 0; x < COLUMN_SIZE; x++) {
@@ -297,9 +297,9 @@ public class Main {
         e.printStackTrace();
     }
 
-        System.out.println("This program only works on Windows 7 so far. Also, make sure that you are using blue tiles," +
+        System.out.println("This program only works on Windows 7 so far. Also, make sure that you are using blue tiles, " +
                 "playing on advanced, and that the window size is as small as possible.");
-
+// add setup that changes to smallest windows size , changes to advanced, and changes to blue squares
 
 
         try {
