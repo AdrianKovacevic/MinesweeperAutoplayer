@@ -10,7 +10,7 @@ import java.util.Random;
 public class Main {
 
 
-    public static void doNextMove (Screen screen) throws InterruptedException {
+    public static void doNextMove (Screen screen) throws InterruptedException, GetWindowRect.GetWindowRectException, GetWindowRect.WindowNotFoundException {
         final byte ROW_SIZE = 16;
         final byte COLUMN_SIZE = 30;
         final byte CELL_UNKNOWN = 0;
@@ -299,7 +299,11 @@ public class Main {
 
         System.out.println("This program only works on Windows 7 so far. Also, make sure that you are using blue tiles, " +
                 "playing on advanced, and that the window size is as small as possible.");
-// add setup that changes to smallest windows size , changes to advanced, and changes to blue squares
+        // add setup that changes to smallest windows size , changes to advanced, and changes to blue squares
+        // add support for other difficulties
+        // add better window tracking capabilities across Windows 8 and non-aero versions of the game
+        // add multithreading
+
 
 
         try {
@@ -312,7 +316,13 @@ public class Main {
 
 //        for (int i = 0; i < 5; i++) {
 //
-//            screen.fillMineGrid();
+//            try {
+//                screen.fillMineGrid();
+//            } catch (GetWindowRect.WindowNotFoundException e) {
+//                e.printStackTrace();
+//            } catch (GetWindowRect.GetWindowRectException e) {
+//                e.printStackTrace();
+//            }
 //            screen.getMineGrid();
 //        }
 
@@ -330,6 +340,12 @@ public class Main {
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (GetWindowRect.GetWindowRectException e) {
+            e.printStackTrace();
+            return;
+        } catch (GetWindowRect.WindowNotFoundException e) {
+            e.printStackTrace();
+            return;
         }
     }
 }

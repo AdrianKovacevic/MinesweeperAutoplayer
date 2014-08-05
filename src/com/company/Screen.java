@@ -1,7 +1,6 @@
 package com.company;
 
 
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ public class Screen {
     public ArrayList<String> flag;
 
 
-    public Screen () {
+    public Screen() {
         screenWidth = 0;
         screenHeight = 0;
         mineGridTopCornerX = 0;
@@ -99,9 +98,11 @@ public class Screen {
             System.out.println("Couldn't make a robot!");
             e.printStackTrace();
         }
-    };
+    }
 
-    private void getTasksPerThread (ArrayList<Integer> tasksPerThread) {
+    ;
+
+    private void getTasksPerThread(ArrayList<Integer> tasksPerThread) {
         int numCores = Runtime.getRuntime().availableProcessors();
         int totalTasks = ROW_SIZE * COLUMN_SIZE;
         int minNumThreadsPerCore = totalTasks / numCores;
@@ -120,39 +121,56 @@ public class Screen {
 
     public int getScreenHeight() {
         return screenHeight;
-    };
+    }
+
+    ;
 
     public int getScreenWidth() {
         return screenWidth;
-    };
+    }
+
+    ;
 
     public BufferedImage getScreenShot() {
         return screenShot;
-    };
+    }
+
+    ;
 
     public byte[][] getMineGrid() {
         return mineGrid;
-    };
+    }
 
-    public int getMineGridBottomCornerX() {
-        return mineGridBottomCornerX;
-    };
+    ;
 
-    public int getMineGridBottomCornerY() {
-        return mineGridBottomCornerY;
-    };
 
     public int getMineGridTopCornerY() {
         return mineGridTopCornerY;
-    };
+    }
+
+    ;
 
     public int getMineGridTopCornerX() {
         return mineGridTopCornerX;
-    };
+    }
 
-    public byte getNumFlaggedMines() { return numFlags; };
+    ;
 
-    private static boolean isColourMatch (int[] givenColourRGB, int[] expectedColourRGB, double tolerance) {
+    public int getMineGridBottomCornerY () {
+        return mineGridBottomCornerY;
+    }
+
+    public int getMineGridBottomCornerX () {
+        return mineGridBottomCornerX;
+    }
+
+    public byte getNumFlaggedMines() {
+        return numFlags;
+    }
+
+    ;
+
+    private static boolean isColourMatch(int[] givenColourRGB, int[] expectedColourRGB, double tolerance) {
 
 
         double colourDifferenceResultant;
@@ -176,7 +194,7 @@ public class Screen {
     }
 
 
-    public boolean fillMineGrid() {
+    public boolean fillMineGrid() throws GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException {
         screenShot = null;
         takeScreenshot();
 
@@ -185,90 +203,123 @@ public class Screen {
         }
 
         int[] rect = new int[4];
+
+
         try {
             rect = GetWindowRect.getRect("Minesweeper");
         } catch (GetWindowRect.WindowNotFoundException e) {
             e.printStackTrace();
-            // better exit that actually closes the program when it has an exception
-            assert(false);
+            throw e;
         } catch (GetWindowRect.GetWindowRectException e) {
             e.printStackTrace();
-            assert(false);
+            throw e;
         }
 
+        int minesweeperTopCornerX = rect[0];
+        int minesweeperTopCornerY = rect[1];
+        int minesweeperBottomCornerX = rect[2];
+        int minesweeperBottomCornerY = rect[3];
 
-            mineGridTopCornerX = rect[0] + 36;
-            mineGridTopCornerY = rect[1] +  78;
-            mineGridBottomCornerX = rect[2] - 37;
-            mineGridBottomCornerY = rect[3] - 40;
+
+        for (int y = minesweeperTopCornerY; y < minesweeperBottomCornerY; y++) {
+            for (int x = minesweeperTopCornerX; x < minesweeperBottomCornerX; x++) {
+                Color pixel = new Color(screenShot.getRGB(x, y));
+
+                int numConsecutiveBlackPixels = 0;
+
+                if (pixel.getRed() == 0 && pixel.getGreen() == 0 && pixel.getBlue() == 0) {
+                    numConsecutiveBlackPixels++;
+                    for (int i = 1; i < 9; i++) {
+                        Color pixelBeside = new Color(screenShot.getRGB(x + i, y));
+                        if (pixelBeside.getRed() == 0 && pixelBeside.getGreen() == 0 && pixelBeside.getBlue() == 0) {
+                            numConsecutiveBlackPixels++;
+                        }
+                    }
+                }
+
+                if (numConsecutiveBlackPixels == 8) {
+                    mineGridTopCornerX = x + 21;
+                    mineGridTopCornerY = y + 32;
+                    break;
+                }
+
+            }
+        }
+
+//        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
+
+//
+//        mineGridTopCornerX = rect[0] + 36;
+//        mineGridTopCornerY = rect[1] +  78;
+        mineGridBottomCornerX = rect[2] - 37;
+        mineGridBottomCornerY = rect[3] - 40;
+
+//        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
 
 
-            one.clear();
-            two.clear();
-            three.clear();
-            four.clear();
-            five.clear();
-            six.clear();
-            blank.clear();
-            flag.clear();
+        one.clear();
+        two.clear();
+        three.clear();
+        four.clear();
+        five.clear();
+        six.clear();
+        blank.clear();
+        flag.clear();
 
-            numFlags = 0;
+        numFlags = 0;
 
-            int gameOverPopup = 0;
-            int testNum = 0;
-            // 17 and 13 are offset values from the top corner of the mine grid to a certain pixel on each cell, to
-            // best determine what the cell contains
-            int y = mineGridTopCornerY + 17;
+        int gameOverPopup = 0;
+        int testNum = 0;
+        // 17 and 13 are offset values from the top corner of the mine grid to a certain pixel on each cell, to
+        // best determine what the cell contains
+
+        int y = mineGridTopCornerY + 17;
 
 
         for (int row = 0; row < ROW_SIZE; row++) {
 
             int x = mineGridTopCornerX + 13;
 
-
             for (int column = 0; column < COLUMN_SIZE; column++) {
 
-                    // the culprit for the extreme slowness was the robot.getPixelColor method, which was called
-                    // every time it thought it found a one
+                // the culprit for the extreme slowness was the robot.getPixelColor method, which was called
+                // every time it thought it found a one
 
 
+                Color colour = new Color(screenShot.getRGB(x, y));
 
-                    Color colour = new Color(screenShot.getRGB(x, y));
+                int[] colourRGBValues = new int[3];
 
-                    int[] colourRGBValues = new int[3];
+                colourRGBValues[0] = colour.getRed();
+                colourRGBValues[1] = colour.getGreen();
+                colourRGBValues[2] = colour.getBlue();
 
-                    colourRGBValues[0] = colour.getRed();
-                    colourRGBValues[1] = colour.getGreen();
-                    colourRGBValues[2] = colour.getBlue();
-
-                    Color colourAbove = new Color(screenShot.getRGB(x, y - 1));
-
-
-                    int[] colourAboveRGBValues = new int[3];
-
-                    colourAboveRGBValues[0] = colourAbove.getRed();
-                    colourAboveRGBValues[1] = colourAbove.getGreen();
-                    colourAboveRGBValues[2] = colourAbove.getBlue();
+                Color colourAbove = new Color(screenShot.getRGB(x, y - 1));
 
 
-                    Color colourRight = new Color(screenShot.getRGB(x + 1, y));
+                int[] colourAboveRGBValues = new int[3];
 
-                    int[] colourRightRGBValues = new int[3];
+                colourAboveRGBValues[0] = colourAbove.getRed();
+                colourAboveRGBValues[1] = colourAbove.getGreen();
+                colourAboveRGBValues[2] = colourAbove.getBlue();
 
-                    colourRightRGBValues[0] = colourRight.getRed();
-                    colourRightRGBValues[1] = colourRight.getGreen();
-                    colourRightRGBValues[2] = colourRight.getBlue();
 
-                    Color colourFarBelow = new Color(screenShot.getRGB(x, y + 2));
+                Color colourRight = new Color(screenShot.getRGB(x + 1, y));
 
-                    int[] colourFarBelowRGBValues = new int[3];
+                int[] colourRightRGBValues = new int[3];
 
-                    colourFarBelowRGBValues[0] = colourFarBelow.getRed();
-                    colourFarBelowRGBValues[1] = colourFarBelow.getGreen();
-                    colourFarBelowRGBValues[2] = colourFarBelow.getBlue();
+                colourRightRGBValues[0] = colourRight.getRed();
+                colourRightRGBValues[1] = colourRight.getGreen();
+                colourRightRGBValues[2] = colourRight.getBlue();
+
+                Color colourFarBelow = new Color(screenShot.getRGB(x, y + 2));
+
+                int[] colourFarBelowRGBValues = new int[3];
+
+                colourFarBelowRGBValues[0] = colourFarBelow.getRed();
+                colourFarBelowRGBValues[1] = colourFarBelow.getGreen();
+                colourFarBelowRGBValues[2] = colourFarBelow.getBlue();
 //                    robot.mouseMove(x, y);
-
-
 
 
 //                    if (testNum == COLUMN_SIZE * 2
@@ -288,102 +339,100 @@ public class Screen {
 //                    }
 
 
-                    if (isColourMatch(colourRGBValues, GAMEOVER_COLOUR, 0)) {
-                        gameOverPopup += 1;
-                        for (int i = 1; i < 25; i++) {
-                            Color gameOverColour = new Color(screenShot.getRGB(x + i, y));
-                            int[] gameOverColourRGBValues = new int[3];
-                            gameOverColourRGBValues[0] = gameOverColour.getRed();
-                            gameOverColourRGBValues[1] = gameOverColour.getGreen();
-                            gameOverColourRGBValues[2] = gameOverColour.getBlue();
-                            if (isColourMatch(gameOverColourRGBValues, GAMEOVER_COLOUR, 0)) {
-                                gameOverPopup += 1;
-                            }
-                        }
-                        if (gameOverPopup == 25) {
-                            return true;
-                        } else {
-                            gameOverPopup = 0;
+                if (isColourMatch(colourRGBValues, GAMEOVER_COLOUR, 0)) {
+                    gameOverPopup += 1;
+                    for (int i = 1; i < 25; i++) {
+                        Color gameOverColour = new Color(screenShot.getRGB(x + i, y));
+                        int[] gameOverColourRGBValues = new int[3];
+                        gameOverColourRGBValues[0] = gameOverColour.getRed();
+                        gameOverColourRGBValues[1] = gameOverColour.getGreen();
+                        gameOverColourRGBValues[2] = gameOverColour.getBlue();
+                        if (isColourMatch(gameOverColourRGBValues, GAMEOVER_COLOUR, 0)) {
+                            gameOverPopup += 1;
                         }
                     }
-
-
-
-
-                    if (isColourMatch(colourRightRGBValues, CELL_FOUR_COLOUR, 15) ) {
-                        four.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column] = CELL_FOUR;
-                    } else if (isColourMatch(colourRGBValues, CELL_THREE_COLOUR, 30) || isColourMatch(colourAboveRGBValues, CELL_THREE_COLOUR, 30)) {
-                        three.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column] = CELL_THREE;
-
-                    } else if (Math.abs(colourRGBValues[0] - 62) < 4 && Math.abs(colourRGBValues[1] - 80) < 2 && Math.abs(colourRGBValues[2] - 189) < 2 && colourFarBelowRGBValues[0] >= 150 && colourFarBelowRGBValues[1] >= 150) {
-                            one.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                            mineGrid[row][column] = CELL_ONE;
-                    } else if (colourRGBValues[0] <= 230 && colourRGBValues[0] >= 160 && colourRGBValues[1] <= 245 && colourRGBValues[1] >= 170 &&  colourRGBValues[2] <= 255 && colourRGBValues[2] >= 200) {
-                        blank.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column] = CELL_BLANK;
-                    }  else if (isColourMatch(colourRGBValues, CELL_TWO_COLOUR, 30)) {
-                        two.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column] = CELL_TWO;
-                    }  else if (isColourMatch(colourRGBValues, CELL_FIVE_COLOUR, 20) || isColourMatch(colourAboveRGBValues, CELL_FIVE_COLOUR, 20)) {
-                        five.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column] = CELL_FIVE;
-                    }  else if (isColourMatch(colourRGBValues, CELL_SIX_COLOUR, 20) || isColourMatch(colourAboveRGBValues, CELL_SIX_COLOUR, 20)) {
-                        six.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        mineGrid[row][column] = CELL_SIX;
-                    } else if (isColourMatch(colourRGBValues, CELL_FLAG_COLOUR, 35)) {
-                        flag.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-                        numFlags++;
-                        mineGrid[row][column] = CELL_FLAG;
+                    if (gameOverPopup == 25) {
+                        return true;
+                    } else {
+                        gameOverPopup = 0;
                     }
-
-                    // move on to next cell, by moving the x coordinate exactly one cell length further
-
-                    x += CELL_SIDE_LENGTH;
-
-                    testNum++;
                 }
 
-                y += CELL_SIDE_LENGTH;
 
+                if (isColourMatch(colourRightRGBValues, CELL_FOUR_COLOUR, 15)) {
+                    four.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
+                    mineGrid[row][column] = CELL_FOUR;
+                } else if (isColourMatch(colourRGBValues, CELL_THREE_COLOUR, 30) || isColourMatch(colourAboveRGBValues, CELL_THREE_COLOUR, 30)) {
+                    three.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
+                    mineGrid[row][column] = CELL_THREE;
+
+                } else if (Math.abs(colourRGBValues[0] - 62) < 4 && Math.abs(colourRGBValues[1] - 80) < 2 && Math.abs(colourRGBValues[2] - 189) < 2 && colourFarBelowRGBValues[0] >= 150 && colourFarBelowRGBValues[1] >= 150) {
+                    one.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
+                    mineGrid[row][column] = CELL_ONE;
+                } else if (colourRGBValues[0] <= 230 && colourRGBValues[0] >= 160 && colourRGBValues[1] <= 245 && colourRGBValues[1] >= 170 && colourRGBValues[2] <= 255 && colourRGBValues[2] >= 200) {
+                    blank.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
+                    mineGrid[row][column] = CELL_BLANK;
+                } else if (isColourMatch(colourRGBValues, CELL_TWO_COLOUR, 30)) {
+                    two.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
+                    mineGrid[row][column] = CELL_TWO;
+                } else if (isColourMatch(colourRGBValues, CELL_FIVE_COLOUR, 20) || isColourMatch(colourAboveRGBValues, CELL_FIVE_COLOUR, 20)) {
+                    five.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
+                    mineGrid[row][column] = CELL_FIVE;
+                } else if (isColourMatch(colourRGBValues, CELL_SIX_COLOUR, 20) || isColourMatch(colourAboveRGBValues, CELL_SIX_COLOUR, 20)) {
+                    six.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
+                    mineGrid[row][column] = CELL_SIX;
+                } else if (isColourMatch(colourRGBValues, CELL_FLAG_COLOUR, 35)) {
+                    flag.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
+                    numFlags++;
+                    mineGrid[row][column] = CELL_FLAG;
+                }
+
+                // move on to next cell, by moving the x coordinate exactly one cell length further
+
+                x += CELL_SIDE_LENGTH;
+
+                testNum++;
             }
 
+            y += CELL_SIDE_LENGTH;
+
+        }
 
 
         return false;
 
-    };
+    }
 
-    public int[] getTilePos (int row, int column) {
+    ;
+
+    public int[] getTilePos(int row, int column) {
         int[] tilePos = new int[2];
         tilePos[0] = mineGridTopCornerX + 6 + (CELL_SIDE_LENGTH * column);
         tilePos[1] = mineGridTopCornerY + 6 + (CELL_SIDE_LENGTH * row);
 
         return tilePos;
-    };
+    }
+
+    ;
 
 
-    private void takeScreenshot () {
+    private void takeScreenshot() {
         Rectangle screenSize = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
         screenShot = robot.createScreenCapture(screenSize);
         screenWidth = screenSize.width;
         screenHeight = screenSize.height;
 
         return;
-    };
+    }
 
-    public static void main (String[] args) {
+    ;
+
+    public static void main(String[] args) {
         int[] colour = {0, 129, 2};
         int[] givenColour = {70, 199, 72};
 
         System.out.println(isColourMatch(colour, givenColour, 50));
     }
-
-
-
-
-
 
 
 }
