@@ -1,14 +1,12 @@
 package com.company;
 
 
-import com.sun.jna.platform.WindowUtils;
-
+import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.Random;
-import javax.swing.text.JTextComponent;
 
 public class Main {
 
@@ -79,7 +77,7 @@ public class Main {
 
             screen.robot.mouseMove(randomX, randomY);
             screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-            Thread.sleep(50);
+            Thread.sleep(10);
             screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
             return;
         } else {
@@ -93,7 +91,7 @@ public class Main {
                         int[] tilePos = screen.getTilePos(y, x);
                         screen.robot.mouseMove(tilePos[0], tilePos[1]);
                         screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                        Thread.sleep(50);
+                        Thread.sleep(10);
                         screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
                         endTime = System.nanoTime();
                         duration = (endTime - startTime) / 1000000000.0;
@@ -130,7 +128,7 @@ public class Main {
                             int[] tilePos = screen.getTilePos(y, x);
                             screen.robot.mouseMove(tilePos[0], tilePos[1]);
                             screen.robot.mousePress(InputEvent.BUTTON2_MASK);
-                            Thread.sleep(50);
+                            Thread.sleep(10);
                             screen.robot.mouseRelease(InputEvent.BUTTON2_MASK);
                             endTime = System.nanoTime();
                             duration = (endTime - startTime) / 1000000000.0;
@@ -151,7 +149,7 @@ public class Main {
                                                 int[] tilePos = screen.getTilePos(testRow, testCol);
                                                 screen.robot.mouseMove(tilePos[0], tilePos[1]);
                                                 screen.robot.mousePress(InputEvent.BUTTON3_MASK);
-                                                Thread.sleep(50);
+                                                Thread.sleep(10);
                                                 screen.robot.mouseRelease(InputEvent.BUTTON3_MASK);
                                             }
                                         } catch (ArrayIndexOutOfBoundsException e) {
@@ -215,11 +213,11 @@ public class Main {
                                                 int[] tilePos = screen.getTilePos(testRow, testCol);
                                                 screen.robot.mouseMove(tilePos[0], tilePos[1]);
                                                 screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(50);
+                                                Thread.sleep(10);
                                                 screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(50);
+                                                Thread.sleep(10);
                                                 screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(50);
+                                                Thread.sleep(10);
                                                 screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
                                                 endTime = System.nanoTime();
                                                 duration = (endTime - startTime) / 1000000000.0;
@@ -286,11 +284,11 @@ public class Main {
                                                 int[] tilePos = screen.getTilePos(testRow, testCol);
                                                 screen.robot.mouseMove(tilePos[0], tilePos[1]);
                                                 screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(50);
+                                                Thread.sleep(10);
                                                 screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(50);
+                                                Thread.sleep(10);
                                                 screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(50);
+                                                Thread.sleep(10);
                                                 screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
                                                 numGuesses--;
                                             }
@@ -310,8 +308,29 @@ public class Main {
             endTime = System.nanoTime();
             duration = (endTime - startTime) / 1000000000.0;
             System.out.println("The duration is: " + duration);
+
+            for (int row = 0; row < ROW_SIZE; row++) {
+                for (int column = 0; column < COLUMN_SIZE; column++) {
+                    if (mineGrid[row][column] == 0) {
+                        int[] tilePos = screen.getTilePos(row, column);
+                        screen.robot.mouseMove(tilePos[0], tilePos[1]);
+                        screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                        Thread.sleep(10);
+                        screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                        Thread.sleep(10);
+                        screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                        Thread.sleep(10);
+                        screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                        return;
+                    }
+                }
+            }
+
+
             return;
             //implement best guess
+
+
         }
 
 
@@ -461,7 +480,13 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
-        Screen screen = new Screen();
+        Screen screen = null;
+        try {
+            screen = new Screen();
+        } catch (AWTException e) {
+            e.printStackTrace();
+            return;
+        }
 
         configureScreen(screen);
 
