@@ -10,8 +10,7 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+
 
 public class Screen {
 
@@ -60,8 +59,6 @@ public class Screen {
     private int mineGridBottomCornerY;
 
     private byte numFlags;
-
-    private static Lock lock = new ReentrantLock();
 
     private boolean isGameOver;
 
