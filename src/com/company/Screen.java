@@ -1,15 +1,21 @@
 package com.company;
 
 
+import javax.imageio.ImageIO;
+
 import static org.junit.Assert.assertArrayEquals;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class Screen {
@@ -63,6 +69,8 @@ public class Screen {
     private boolean isGameOver;
 
     final private ArrayList<Integer> tasksPerThread;
+
+    final private Lock lock = new ReentrantLock();
 
     // bug fixing purposes
 
@@ -155,8 +163,8 @@ public class Screen {
 
 
     private void getTasksPerThread(ArrayList<Integer> tasksPerThread) {
-//        int numCores = Runtime.getRuntime().availableProcessors();
-        int numCores = 7;
+        int numCores = Runtime.getRuntime().availableProcessors();
+//        int numCores = 7;
         int totalTasks = ROW_SIZE * COLUMN_SIZE;
         int minNumThreadsPerCore = totalTasks / numCores;
         int remainingThreads = totalTasks % numCores;
@@ -196,11 +204,14 @@ public class Screen {
             // 17 and 13 are offset values from the top corner of the mine grid to a certain pixel on each cell, to
             // best determine what the cell contains
 
+//            robot.mouseMove(mineGridTopCornerX + 13, mineGridTopCornerY + 17);
+//            Color test = new Color(screenShot.getRGB(mineGridTopCornerX + 13, mineGridTopCornerY + 17));
 
 
             for (int row = startRow; row <= endRow; row++) {
 
                 int y = mineGridTopCornerY + 17 + (CELL_SIDE_LENGTH * row);
+
 
                 while (column != 30 && termsLeft != 0) {
 
@@ -246,7 +257,11 @@ public class Screen {
 
                     int gameOverPopup = 0;
 
+//                    robot.mouseMove(x, y);
+
+
                     if (isColourMatch(colourRGBValues, GAMEOVER_COLOUR, 0)) {
+                        robot.mouseMove(x, y);
                         gameOverPopup += 1;
                         for (int i = 1; i < 25; i++) {
                             Color gameOverColour = new Color(screenShot.getRGB(x + i, y));
@@ -259,7 +274,10 @@ public class Screen {
                             }
                         }
                         if (gameOverPopup == 25) {
+                            lock.lock();
                             isGameOver = true;
+                            lock.unlock();
+
                             break;
                         }
                     }
@@ -348,6 +366,7 @@ public class Screen {
     public boolean fillMineGrid()
             throws GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException, InterruptedException {
         screenShot = null;
+
         takeScreenshot();
 
         for (int y = 0; y < ROW_SIZE; y++) {
@@ -380,11 +399,13 @@ public class Screen {
 
                 numConsecutiveBlackPixels = 0;
 
-                if (pixel.getRed() == 0 && pixel.getGreen() == 0 && pixel.getBlue() == 0) {
+                if (pixel.getRed() <= 10 && pixel.getGreen() <= 10 && pixel.getBlue() <= 10) {
+//                    robot.mouseMove(x, y);
                     numConsecutiveBlackPixels++;
-                    for (int i = 1; i < 9; i++) {
+                    for (int i = 1; i < 8; i++) {
                         Color pixelBeside = new Color(screenShot.getRGB(x + i, y));
-                        if (pixelBeside.getRed() == 0 && pixelBeside.getGreen() == 0 && pixelBeside.getBlue() == 0) {
+                        if (pixelBeside.getRed() <= 10 && pixelBeside.getGreen() <= 10 && pixelBeside.getBlue() <= 10
+                                ) {
                             numConsecutiveBlackPixels++;
                         }
                     }
@@ -397,15 +418,33 @@ public class Screen {
                 }
 
             }
+
+            if (numConsecutiveBlackPixels == 8) {
+                break;
+            }
+
         }
 
 //        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
 
+
+
 //
+
         if (numConsecutiveBlackPixels != 8) {
             mineGridTopCornerX = rect[0] + 36;
             mineGridTopCornerY = rect[1] +  78;
         }
+
+//        BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX, mineGridTopCornerY, 10, 10);
+//        File outputfile = new File("saved.png");
+//        try {
+//            ImageIO.write(ss, "png", outputfile);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
 
         mineGridBottomCornerX = rect[2] - 37;
         mineGridBottomCornerY = rect[3] - 40;
@@ -413,14 +452,14 @@ public class Screen {
 //        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
 
 
-        one.clear();
-        two.clear();
-        three.clear();
-        four.clear();
-        five.clear();
-        six.clear();
-        blank.clear();
-        flag.clear();
+//        one.clear();
+//        two.clear();
+//        three.clear();
+//        four.clear();
+//        five.clear();
+//        six.clear();
+//        blank.clear();
+//        flag.clear();
 
         numFlags = 0;
 
@@ -590,11 +629,7 @@ public class Screen {
 //        System.out.println("Finished all threads!");
 
 
-        if (isGameOver) {
-            return true;
-        } else {
-            return false;
-        }
+        return isGameOver;
 
     }
 

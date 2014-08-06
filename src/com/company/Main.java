@@ -346,7 +346,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        System.out.println("This program only works on Windows 7 so far. Also, make sure that you are using blue tiles, " +
+        System.out.println("Make sure that you are using blue tiles, " +
                 "playing on advanced, and that the window size is as small as possible.");
         // add setup that changes to smallest windows size , changes to advanced, and changes to blue squares
         // add support for other difficulties
@@ -469,10 +469,10 @@ public class Main {
         screen.robot.mousePress(InputEvent.BUTTON1_MASK);
         Thread.sleep(50);
         screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-
-        Thread.sleep(100);
-
         screen.robot.mouseMove(20, 20);
+
+        Thread.sleep(400);
+
 
     }
 
@@ -490,27 +490,26 @@ public class Main {
 
         configureScreen(screen);
 
-        for (int i = 0; i < 5; i++) {
-
-            try {
-                long startTime = System.nanoTime();
-
-                screen.fillMineGrid();
-
-                long endTime = System.nanoTime();
-                double duration = (endTime - startTime) /
-                        1000000000.0;
-                System.out.println("The duration is: " + duration);
-
-            } catch (GetWindowRect.WindowNotFoundException e) {
-                e.printStackTrace();
-            } catch (GetWindowRect.GetWindowRectException e) {
-                e.printStackTrace();
-            }
-
-            screen.getMineGrid();
-
-        }
+//        for (int i = 0; i < 5; i++) {
+//
+//            try {
+//                long startTime = System.nanoTime();
+//
+//                screen.fillMineGrid();
+//
+//                long endTime = System.nanoTime();
+//                double duration = (endTime - startTime) / 1000000000.0;
+//                System.out.println("The duration is: " + duration);
+//
+//            } catch (GetWindowRect.WindowNotFoundException e) {
+//                e.printStackTrace();
+//            } catch (GetWindowRect.GetWindowRectException e) {
+//                e.printStackTrace();
+//            }
+//
+//            screen.getMineGrid();
+//
+//        }
 
 
 
