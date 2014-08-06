@@ -41,7 +41,7 @@ public class Screen {
     final int[] CELL_FOUR_COLOUR = {1, 1, 130};
     final int[] CELL_FIVE_COLOUR = {129, 10, 10};
     final int[] CELL_SIX_COLOUR = {5, 125, 122};
-    final int[] CELL_SEVEN_COLOUR = {};
+    final int[] CELL_SEVEN_COLOUR = {173, 4, 5};
     final int[] CELL_BLANK_COLOUR = {172, 181, 212};
     final int[] CELL_FLAG_COLOUR = {161, 159, 162};
     final int[] GAMEOVER_COLOUR = {240, 240, 240};
@@ -221,6 +221,7 @@ public class Screen {
 
                     int x = mineGridTopCornerX + 13 + (CELL_SIDE_LENGTH * column);
 
+
                     Color colour = new Color(screenShot.getRGB(x, y));
 
                     int[] colourRGBValues = new int[3];
@@ -255,10 +256,17 @@ public class Screen {
                     colourFarBelowRGBValues[1] = colourFarBelow.getGreen();
                     colourFarBelowRGBValues[2] = colourFarBelow.getBlue();
 
+                    Color colourFarAbove = new Color(screenShot.getRGB(x + 1, y - 10));
+
+                    int[] colourFarAboveRGBValues = new int[3];
+
+                    colourFarAboveRGBValues[0] = colourFarAbove.getRed();
+                    colourFarAboveRGBValues[1] = colourFarAbove.getGreen();
+                    colourFarAboveRGBValues[2] = colourFarAbove.getBlue();
+
                     int gameOverPopup = 0;
 
 //                    robot.mouseMove(x, y);
-
 
                     if (isColourMatch(colourRGBValues, GAMEOVER_COLOUR, 0)) {
                         robot.mouseMove(x, y);
@@ -283,7 +291,11 @@ public class Screen {
                     }
 
                     if (!isGameOver) {
-                        if (isColourMatch(colourRightRGBValues, CELL_FOUR_COLOUR, 15)) {
+                        if (isColourMatch(colourFarAboveRGBValues, CELL_SEVEN_COLOUR, 30) && colourRGBValues[0] >= 140 && colourRGBValues[1] >= 140 && colourRGBValues[2] >= 180
+                                && colourRightRGBValues[0] >= 140 && colourRightRGBValues[1] >= 140 && colourRightRGBValues[2] >= 180) {
+                            seven.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
+                            mineGrid[row][column] = CELL_SEVEN;
+                        } else if (isColourMatch(colourRightRGBValues, CELL_FOUR_COLOUR, 15)) {
                             four.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                             mineGrid[row][column] = CELL_FOUR;
                         } else if (isColourMatch(colourRGBValues, CELL_THREE_COLOUR, 35) || isColourMatch(
@@ -427,8 +439,15 @@ public class Screen {
 
 //        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
 
+//        robot.mouseMove(mineGridTopCornerX + 31, mineGridTopCornerY + 17);
 
-
+        BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX + 31, mineGridTopCornerY + 17, 10, 10);
+        File outputfile = new File("saved3.png");
+        try {
+            ImageIO.write(ss, "png", outputfile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 //
 
         if (numConsecutiveBlackPixels != 8) {

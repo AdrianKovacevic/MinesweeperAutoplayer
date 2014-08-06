@@ -28,8 +28,7 @@ public class Main {
         final byte FINAL_ROW_INDEX = 15;
         final byte FINAL_COLUMN_INDEX = 29;
 
-        final int PLAYAGAIN_BUTTON_X_DISTANCE = 396;
-        final int PLAYAGAIN_BUTTON_Y_DISTANCE = 210;
+        double[][] guessingGrid = new double[ROW_SIZE][COLUMN_SIZE];
 
 
         boolean isEmpty = true;
@@ -83,10 +82,14 @@ public class Main {
         } else {
 
 
-
-
+            // this first pair of loops checks all cells for guaranteed moves, and keeps track of any possible guesses
+            // the next loop checks for the cell with the least number of guesses, and performs the guesses on it
             for (int y = 0; y < ROW_SIZE; y++) {
                 for (int x = 0; x < COLUMN_SIZE; x++) {
+                    // iterates through the grid to click all unknown cells if all mines have been flagged
+                    // otherwise, it goes to a numbered cell and counts the adjacent flags and unknown cells
+
+
                     if (screen.getNumFlaggedMines() == FLAG_MAXSIZE && mineGrid[y][x] == CELL_UNKNOWN) {
                         int[] tilePos = screen.getTilePos(y, x);
                         screen.robot.mouseMove(tilePos[0], tilePos[1]);
@@ -98,8 +101,11 @@ public class Main {
                         System.out.println("The duration is: " + duration);
                         return;
                     } else if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
-                        int numZero = 0;
+                        int numUnknown = 0;
                         int numFlags = 0;
+
+                        // goes to all adjacent cells in the array to see how many flags and unknown cells there are
+
                         for (int i = -1; i < 2; i++) {
                             for (int j = -1; j < 2; j++) {
                                 if (i != 0 || j != 0) {
@@ -108,22 +114,23 @@ public class Main {
 
                                     try {
                                         if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
-                                            numZero++;
+                                            numUnknown++;
                                         } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
                                             numFlags++;
                                         }
                                     } catch (ArrayIndexOutOfBoundsException e) {
-                                        //System.out.println("Array out of bounds");
+                                        // catching and doing nothing is fine as the out of play cells will not be flags
+                                        // or unknown
                                     }
                                 }
                             }
                         }
 
+                        // if the number of adjacent flags is equal to the number, it expands the cell if possible
 
-
-                        if (mineGrid[y][x] == numFlags && numZero != 0) {
+                        if (mineGrid[y][x] == numFlags && numUnknown != 0) {
                             // expand the tile since possible
-                            System.out.println("Expanding around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "Numzeros: " + numZero);
+                            System.out.println("Expanding around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "numUnknowns: " + numUnknown);
 
                             int[] tilePos = screen.getTilePos(y, x);
                             screen.robot.mouseMove(tilePos[0], tilePos[1]);
@@ -134,8 +141,11 @@ public class Main {
                             duration = (endTime - startTime) / 1000000000.0;
                             System.out.println("The duration is: " + duration);
                             return;
-                        } else if (mineGrid[y][x] - numFlags == numZero && numZero != 0) {
-                            System.out.println("Flagging around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "Numzeros: " + numZero);
+
+                        // otherwise, if not all of the number's adjacent cells have been flagged, but there are
+                        // the same number of unknown cells as leftover mines, then it flags all of the unknown cells
+                        } else if (mineGrid[y][x] - numFlags == numUnknown && numUnknown != 0) {
+                            System.out.println("Flagging around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "numUnknowns: " + numUnknown);
 
                             // mark all surrounding tiles with flags
                             for (int i = -1; i < 2; i++) {
@@ -159,11 +169,20 @@ public class Main {
                                     }
                                 }
                             }
+
                             screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
                             endTime = System.nanoTime();
                             duration = (endTime - startTime) / 1000000000.0;
                             System.out.println("The duration is: " + duration);
                             return;
+
+                        // if it can not expand a cell or flag it using the information that is given, then it
+                        // must take a guess. here it will compute how many guesses are necessary around the cell
+
+                        } else {
+                            int numMines = mineGrid[y][x] - numFlags;
+                            double chanceOfCorrectGuess = 1.0 - ((double) numMines / (double) numUnknown);
+                            guessingGrid[y][x] = chanceOfCorrectGuess;
                         }
                     }
                 }
@@ -173,10 +192,42 @@ public class Main {
             // if no guesses possible around a number, then finally just guess on other unknown cells since some mines
             // are left (previous check for 99 flags)
 
+            // iterate through the guessing chances for each number that is not able to be expanded, look for the
+            // highest probability equal or less than 50%, and guess once on it. return, and check to see if anything
+            // new opened up that does not have to be guessed
+
+            int[] highestGuessingChanceCell = new int[2];
+            double highestGuessingChance = 0.0;
+
+            for (int row = 0; row < ROW_SIZE; row++) {
+                for (int column = 0; column < COLUMN_SIZE; column++) {
+                    if (highestGuessingChance < guessingGrid[row][column] && guessingGrid[row][column] <= 0.51) {
+                        highestGuessingChance = guessingGrid[row][column];
+                        highestGuessingChanceCell[0] = row;
+                        highestGuessingChanceCell[1] = column;
+                    }
+                }
+            }
+
+            int row = highestGuessingChanceCell[0];
+            int column = highestGuessingChanceCell[1];
+            System.out.println("Making a guess around a " + mineGrid[row][column] + " at row " + row + " and column " + column + ". The chance is: " + guessingGrid[row][column] * 100.0 + "%.");
+
+            for (int i = -1; i < 2; i++) {
+                for (int j = -1; j < 2; j++) {
+                    if (i != 0 || j != 0) {
+                        int testRow = i + row;
+                        int testCol = j + column;
+
+
+                    }
+                }
+            }
+
             for (int y = 0; y < ROW_SIZE; y++) {
                 for (int x = 0; x < COLUMN_SIZE; x++) {
                     if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
-                        int numZero = 0;
+                        int numUnknown = 0;
                         int numFlags = 0;
                         for (int i = -1; i < 2; i++) {
                             for (int j = -1; j < 2; j++) {
@@ -186,7 +237,7 @@ public class Main {
 
                                     try {
                                         if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
-                                            numZero++;
+                                            numUnknown++;
                                         } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
                                             numFlags++;
                                         }
@@ -200,8 +251,8 @@ public class Main {
 
 
 
-                        if (numZero == 2) {
-                            System.out.println("Making a guess around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "Numzeros: " + numZero);
+                        if (numUnknown == 2) {
+                            System.out.println("Making a guess around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "numUnknowns: " + numUnknown);
                             for (int i = -1; i < 2; i++) {
                                 for (int j = -1; j < 2; j++) {
                                     if (i != 0 || j != 0) {
@@ -239,7 +290,7 @@ public class Main {
             for (int y = 0; y < ROW_SIZE; y++) {
                 for (int x = 0; x < COLUMN_SIZE; x++) {
                     if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
-                        int numZero = 0;
+                        int numUnknown = 0;
                         int numFlags = 0;
                         for (int i = -1; i < 2; i++) {
                             for (int j = -1; j < 2; j++) {
@@ -249,7 +300,7 @@ public class Main {
 
                                     try {
                                         if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
-                                            numZero++;
+                                            numUnknown++;
                                         } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
                                             numFlags++;
                                         }
@@ -263,9 +314,9 @@ public class Main {
 
 
 
-                        if (numZero != 0) {
-                            int numGuesses = Math.abs(numZero - (mineGrid[y][x] - numFlags));
-                            System.out.println("Making " + numGuesses + " guesses around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "Numzeros: " + numZero);
+                        if (numUnknown != 0) {
+                            int numGuesses = Math.abs(numUnknown - (mineGrid[y][x] - numFlags));
+                            System.out.println("Making " + numGuesses + " guesses around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "numUnknowns: " + numUnknown);
 
                             for (int i = -1; i < 2; i++) {
                                 for (int j = -1; j < 2; j++) {
@@ -308,6 +359,10 @@ public class Main {
             endTime = System.nanoTime();
             duration = (endTime - startTime) / 1000000000.0;
             System.out.println("The duration is: " + duration);
+
+            // clicks on a cell if not all of the mines have been flagged, but no moves from numbered cells can be made.
+            // handles the case where cells are blocked off by mines, but neither have any information as to what the
+            // cells contain.
 
             for (int row = 0; row < ROW_SIZE; row++) {
                 for (int column = 0; column < COLUMN_SIZE; column++) {
@@ -521,7 +576,7 @@ public class Main {
 //                long endTime = System.nanoTime();
 //                double duration = (endTime - startTime) / 1000000000.0;
 //                System.out.println("The duration is: " + duration);
-                Thread.sleep(25);
+                Thread.sleep(50);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
