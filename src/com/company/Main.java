@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Main {
@@ -29,6 +30,10 @@ public class Main {
         final byte FINAL_COLUMN_INDEX = 29;
 
         double[][] guessingGrid = new double[ROW_SIZE][COLUMN_SIZE];
+
+        for (int i = 0; i < ROW_SIZE; i++) {
+            Arrays.fill(guessingGrid[i], -1.0);
+        }
 
 
         boolean isEmpty = true;
@@ -59,6 +64,20 @@ public class Main {
         }
 
         byte[][] mineGrid = screen.getMineGrid();
+
+        // fills all the unknown cells in the guessing grid as a 0.
+        // in this way, all cells that do not have any unknown cells around it will never be guessed on, and when it
+        // comes to guessing around a cell, if there are no cells that can be guessed around, it will click on the
+        // unknown cells to handle the case where a cell is boxed off by mines
+
+        for (int row = 0; row < ROW_SIZE; row++) {
+            for (int column = 0; column < COLUMN_SIZE; column++) {
+                if (mineGrid[row][column] == CELL_UNKNOWN) {
+                    guessingGrid[row][column] = CELL_UNKNOWN;
+                }
+            }
+        }
+
 
         for (int y = 0; y < ROW_SIZE; y++) {
             for (int x = 0; x < COLUMN_SIZE; x++) {
@@ -180,7 +199,7 @@ public class Main {
                         // if it can not expand a cell or flag it using the information that is given, then it
                         // must take a guess. here it will compute how many guesses are necessary around the cell
 
-                        } else {
+                        } else if (numUnknown != 0) {
                             int numMines = mineGrid[y][x] - numFlags;
                             double chanceOfCorrectGuess = 1.0 - ((double) numMines / (double) numUnknown);
                             guessingGrid[y][x] = chanceOfCorrectGuess;
@@ -196,24 +215,48 @@ public class Main {
             // iterate through the guessing chances for each number that is not able to be expanded, look for the
             // highest probability equal or less than 50%, and guess once on it. return, and check to see if anything
             // new opened up that does not have to be guessed
+            // 50% or less prevents guessing on something like a 1 with 8 empty cells around it
+
 
             int[] highestGuessingChanceCell = new int[2];
-            double highestGuessingChance = 0.0;
+            double highestGuessingChance = -0.5;
+
+            int[] absoluteHighestGuessingChanceCell = new int[2];
+            double absoluteHighestGuessingChance = -0.5;
 
             for (int row = 0; row < ROW_SIZE; row++) {
                 for (int column = 0; column < COLUMN_SIZE; column++) {
                     // 0.51 is to prevent any sort of oddity including imprecise double values
+
                     if (highestGuessingChance < guessingGrid[row][column] && guessingGrid[row][column] <= 0.51) {
                         highestGuessingChance = guessingGrid[row][column];
                         highestGuessingChanceCell[0] = row;
                         highestGuessingChanceCell[1] = column;
                     }
+
+                    if (absoluteHighestGuessingChance < guessingGrid[row][column]) {
+                        absoluteHighestGuessingChance = guessingGrid[row][column];
+                        absoluteHighestGuessingChanceCell[0] = row;
+                        absoluteHighestGuessingChanceCell[1] = column;
+                    }
                 }
             }
 
+            int guessRow;
+            int guessColumn;
 
-            int guessRow = highestGuessingChanceCell[0];
-            int guessColumn = highestGuessingChanceCell[1];
+            // if the guess it would like to make is on an unknown cell and there exists another cell cell that
+            // can be possibly guessed on, then it goes with the other cell
+            // only guesses on unknown if there are no other guessing possibilities
+
+            if (highestGuessingChance < 0.01 && absoluteHighestGuessingChance > 0.49) {
+                guessRow = absoluteHighestGuessingChanceCell[0];
+                guessColumn = absoluteHighestGuessingChanceCell[1];
+            } else {
+                guessRow = highestGuessingChanceCell[0];
+                guessColumn = highestGuessingChanceCell[1];
+            }
+
             System.out.println("Making a guess around a " + mineGrid[guessRow][guessColumn] + " at row " + guessRow + " and column " +
                     guessColumn + ". The chance of guessing correctly is: " + guessingGrid[guessRow][guessColumn] * 100.0 + "%.");
 
@@ -389,22 +432,24 @@ public class Main {
             // handles the case where cells are blocked off by mines, but neither have any information as to what the
             // cells contain.
 
-            for (int row = 0; row < ROW_SIZE; row++) {
-                for (int column = 0; column < COLUMN_SIZE; column++) {
-                    if (mineGrid[row][column] == 0) {
-                        int[] tilePos = screen.getTilePos(row, column);
-                        screen.robot.mouseMove(tilePos[0], tilePos[1]);
-                        screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                        Thread.sleep(10);
-                        screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                        Thread.sleep(10);
-                        screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                        Thread.sleep(10);
-                        screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                        return;
-                    }
-                }
-            }
+            // obsolete by the new guessing algorithm
+
+//            for (int row = 0; row < ROW_SIZE; row++) {
+//                for (int column = 0; column < COLUMN_SIZE; column++) {
+//                    if (mineGrid[row][column] == 0) {
+//                        int[] tilePos = screen.getTilePos(row, column);
+//                        screen.robot.mouseMove(tilePos[0], tilePos[1]);
+//                        screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+//                        Thread.sleep(10);
+//                        screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+//                        Thread.sleep(10);
+//                        screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+//                        Thread.sleep(10);
+//                        screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+//                        return;
+//                    }
+//                }
+//            }
 
 
             return;
@@ -417,7 +462,7 @@ public class Main {
 
     }
 
-    public static void configureScreen(Screen screen) throws InterruptedException {
+    public static void configureScreen(Screen screen) throws InterruptedException, GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException {
 
         try {
             Runtime.getRuntime().exec("cmd.exe /C Start \"\" \"%programfiles%\\Microsoft Games\\Minesweeper\\minesweeper.exe\"");
@@ -553,6 +598,16 @@ public class Main {
 
         Thread.sleep(400);
 
+        try {
+            screen.findMineGridCorners();
+        } catch (GetWindowRect.WindowNotFoundException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (GetWindowRect.GetWindowRectException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
 
     }
 
@@ -560,7 +615,7 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
-        Screen screen = null;
+        Screen screen;
         try {
             screen = new Screen();
         } catch (AWTException e) {
@@ -568,7 +623,15 @@ public class Main {
             return;
         }
 
-        configureScreen(screen);
+        try {
+            configureScreen(screen);
+        } catch (GetWindowRect.WindowNotFoundException e) {
+            e.printStackTrace();
+            return;
+        } catch (GetWindowRect.GetWindowRectException e) {
+            e.printStackTrace();
+            return;
+        }
 
 //        for (int i = 0; i < 5; i++) {
 //

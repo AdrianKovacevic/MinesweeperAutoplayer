@@ -374,16 +374,9 @@ public class Screen {
 
 
 
-
-    public boolean fillMineGrid()
-            throws GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException, InterruptedException {
+    public void findMineGridCorners () throws GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException {
         screenShot = null;
-
         takeScreenshot();
-
-        for (int y = 0; y < ROW_SIZE; y++) {
-            Arrays.fill(mineGrid[y], (byte) 0);
-        }
 
         int[] rect;
 
@@ -441,13 +434,13 @@ public class Screen {
 
 //        robot.mouseMove(mineGridTopCornerX + 31, mineGridTopCornerY + 17);
 
-        BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX + 31, mineGridTopCornerY + 17, 10, 10);
-        File outputfile = new File("saved3.png");
-        try {
-            ImageIO.write(ss, "png", outputfile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX + 31, mineGridTopCornerY + 17, 10, 10);
+//        File outputfile = new File("saved3.png");
+//        try {
+//            ImageIO.write(ss, "png", outputfile);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 //
 
         if (numConsecutiveBlackPixels != 8) {
@@ -467,6 +460,101 @@ public class Screen {
 
         mineGridBottomCornerX = rect[2] - 37;
         mineGridBottomCornerY = rect[3] - 40;
+
+    }
+
+    public boolean fillMineGrid()
+            throws GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException, InterruptedException {
+        screenShot = null;
+
+        takeScreenshot();
+
+        for (int y = 0; y < ROW_SIZE; y++) {
+            Arrays.fill(mineGrid[y], (byte) 0);
+        }
+
+//        int[] rect;
+//
+//
+//        try {
+//            rect = GetWindowRect.getRect("Minesweeper");
+//        } catch (GetWindowRect.WindowNotFoundException e) {
+//            e.printStackTrace();
+//            throw e;
+//        } catch (GetWindowRect.GetWindowRectException e) {
+//            e.printStackTrace();
+//            throw e;
+//        }
+//
+//        int minesweeperTopCornerX = rect[0];
+//        int minesweeperTopCornerY = rect[1];
+//        int minesweeperBottomCornerX = rect[2];
+//        int minesweeperBottomCornerY = rect[3];
+//
+//        int numConsecutiveBlackPixels = 0;
+//
+//        for (int y = minesweeperTopCornerY; y < minesweeperBottomCornerY; y++) {
+//            for (int x = minesweeperTopCornerX; x < minesweeperBottomCornerX; x++) {
+//                Color pixel = new Color(screenShot.getRGB(x, y));
+//
+//                numConsecutiveBlackPixels = 0;
+//
+//                if (pixel.getRed() <= 10 && pixel.getGreen() <= 10 && pixel.getBlue() <= 10) {
+////                    robot.mouseMove(x, y);
+//                    numConsecutiveBlackPixels++;
+//                    for (int i = 1; i < 8; i++) {
+//                        Color pixelBeside = new Color(screenShot.getRGB(x + i, y));
+//                        if (pixelBeside.getRed() <= 10 && pixelBeside.getGreen() <= 10 && pixelBeside.getBlue() <= 10
+//                                ) {
+//                            numConsecutiveBlackPixels++;
+//                        }
+//                    }
+//                }
+//
+//                if (numConsecutiveBlackPixels == 8) {
+//                    mineGridTopCornerX = x + 21;
+//                    mineGridTopCornerY = y + 33;
+//                    break;
+//                }
+//
+//            }
+//
+//            if (numConsecutiveBlackPixels == 8) {
+//                break;
+//            }
+//
+//        }
+
+//        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
+
+//        robot.mouseMove(mineGridTopCornerX + 31, mineGridTopCornerY + 17);
+
+//        BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX + 31, mineGridTopCornerY + 17, 10, 10);
+//        File outputfile = new File("saved3.png");
+//        try {
+//            ImageIO.write(ss, "png", outputfile);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+
+//        if (numConsecutiveBlackPixels != 8) {
+//            mineGridTopCornerX = rect[0] + 36;
+//            mineGridTopCornerY = rect[1] +  78;
+//        }
+
+//        BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX, mineGridTopCornerY, 10, 10);
+//        File outputfile = new File("saved.png");
+//        try {
+//            ImageIO.write(ss, "png", outputfile);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
+
+//        mineGridBottomCornerX = rect[2] - 37;
+//        mineGridBottomCornerY = rect[3] - 40;
 
 //        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
 
