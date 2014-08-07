@@ -54,7 +54,7 @@ public class Main {
             screen.robot.keyRelease(KeyEvent.VK_P);
             Thread.sleep(50);
             screen.robot.keyRelease(KeyEvent.VK_ALT);
-            Thread.sleep(2000);
+            Thread.sleep(1000);
             return;
         }
 
@@ -126,7 +126,8 @@ public class Main {
                             }
                         }
 
-                        // if the number of adjacent flags is equal to the number, it expands the cell if possible
+                        // if the number of adjacent flags is equal to the number, it expands the cell if there are
+                        // unknown squares adjacent to it
 
                         if (mineGrid[y][x] == numFlags && numUnknown != 0) {
                             // expand the tile since possible
@@ -201,6 +202,7 @@ public class Main {
 
             for (int row = 0; row < ROW_SIZE; row++) {
                 for (int column = 0; column < COLUMN_SIZE; column++) {
+                    // 0.51 is to prevent any sort of oddity including imprecise double values
                     if (highestGuessingChance < guessingGrid[row][column] && guessingGrid[row][column] <= 0.51) {
                         highestGuessingChance = guessingGrid[row][column];
                         highestGuessingChanceCell[0] = row;
@@ -209,152 +211,175 @@ public class Main {
                 }
             }
 
-            int row = highestGuessingChanceCell[0];
-            int column = highestGuessingChanceCell[1];
-            System.out.println("Making a guess around a " + mineGrid[row][column] + " at row " + row + " and column " + column + ". The chance is: " + guessingGrid[row][column] * 100.0 + "%.");
+
+            int guessRow = highestGuessingChanceCell[0];
+            int guessColumn = highestGuessingChanceCell[1];
+            System.out.println("Making a guess around a " + mineGrid[guessRow][guessColumn] + " at row " + guessRow + " and column " +
+                    guessColumn + ". The chance of guessing correctly is: " + guessingGrid[guessRow][guessColumn] * 100.0 + "%.");
 
             for (int i = -1; i < 2; i++) {
                 for (int j = -1; j < 2; j++) {
                     if (i != 0 || j != 0) {
-                        int testRow = i + row;
-                        int testCol = j + column;
+                        int testRow = i + guessRow;
+                        int testCol = j + guessColumn;
 
-
-                    }
-                }
-            }
-
-            for (int y = 0; y < ROW_SIZE; y++) {
-                for (int x = 0; x < COLUMN_SIZE; x++) {
-                    if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
-                        int numUnknown = 0;
-                        int numFlags = 0;
-                        for (int i = -1; i < 2; i++) {
-                            for (int j = -1; j < 2; j++) {
-                                if (i != 0 || j != 0) {
-                                    int testCol = j + x;
-                                    int testRow = i + y;
-
-                                    try {
-                                        if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
-                                            numUnknown++;
-                                        } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
-                                            numFlags++;
-                                        }
-                                    } catch (ArrayIndexOutOfBoundsException e) {
-                                       // System.out.println("Array out of bounds");
-
-                                    }
-                                }
+                        try {
+                            if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
+                                int[] tilePos = screen.getTilePos(testRow, testCol);
+                                screen.robot.mouseMove(tilePos[0], tilePos[1]);
+                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                                Thread.sleep(10);
+                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                                Thread.sleep(10);
+                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                                Thread.sleep(10);
+                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                                endTime = System.nanoTime();
+                                duration = (endTime - startTime) / 1000000000.0;
+                                System.out.println("The duration is: " + duration);
+//                                Thread.sleep(150);
+                                return;
                             }
-                        }
+                        } catch (ArrayIndexOutOfBoundsException e) {
+//                          System.out.println("Array out of bounds");
 
-
-
-                        if (numUnknown == 2) {
-                            System.out.println("Making a guess around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "numUnknowns: " + numUnknown);
-                            for (int i = -1; i < 2; i++) {
-                                for (int j = -1; j < 2; j++) {
-                                    if (i != 0 || j != 0) {
-                                        int testCol = j + x;
-                                        int testRow = i + y;
-
-                                        try {
-                                            if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
-                                                int[] tilePos = screen.getTilePos(testRow, testCol);
-                                                screen.robot.mouseMove(tilePos[0], tilePos[1]);
-                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(10);
-                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(10);
-                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(10);
-                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                                                endTime = System.nanoTime();
-                                                duration = (endTime - startTime) / 1000000000.0;
-                                                System.out.println("The duration is: " + duration);
-                                                return;
-                                            }
-                                        } catch (ArrayIndexOutOfBoundsException e) {
-//                                            System.out.println("Array out of bounds");
-
-                                        }
-                                    }
-                                }
-                            }
                         }
 
                     }
                 }
             }
-            for (int y = 0; y < ROW_SIZE; y++) {
-                for (int x = 0; x < COLUMN_SIZE; x++) {
-                    if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
-                        int numUnknown = 0;
-                        int numFlags = 0;
-                        for (int i = -1; i < 2; i++) {
-                            for (int j = -1; j < 2; j++) {
-                                if (i != 0 || j != 0) {
-                                    int testCol = j + x;
-                                    int testRow = i + y;
 
-                                    try {
-                                        if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
-                                            numUnknown++;
-                                        } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
-                                            numFlags++;
-                                        }
-                                    } catch (ArrayIndexOutOfBoundsException e) {
-//                                        System.out.println("Array out of bounds");
-
-                                    }
-                                }
-                            }
-                        }
-
-
-
-                        if (numUnknown != 0) {
-                            int numGuesses = Math.abs(numUnknown - (mineGrid[y][x] - numFlags));
-                            System.out.println("Making " + numGuesses + " guesses around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "numUnknowns: " + numUnknown);
-
-                            for (int i = -1; i < 2; i++) {
-                                for (int j = -1; j < 2; j++) {
-                                    if (i != 0 || j != 0) {
-                                        int testCol = j + x;
-                                        int testRow = i + y;
-
-                                        try {
-                                            if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
-                                                if (numGuesses == 0) {
-                                                    endTime = System.nanoTime();
-                                                    duration = (endTime - startTime) / 1000000000.0;
-                                                    System.out.println("The duration is: " + duration);
-                                                    return;
-                                                }
-                                                int[] tilePos = screen.getTilePos(testRow, testCol);
-                                                screen.robot.mouseMove(tilePos[0], tilePos[1]);
-                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(10);
-                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(10);
-                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                                                Thread.sleep(10);
-                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                                                numGuesses--;
-                                            }
-                                        } catch (ArrayIndexOutOfBoundsException e) {
-                                           // System.out.println("Array out of bounds");
-
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
+//            for (int y = 0; y < ROW_SIZE; y++) {
+//                for (int x = 0; x < COLUMN_SIZE; x++) {
+//                    if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
+//                        int numUnknown = 0;
+//                        int numFlags = 0;
+//                        for (int i = -1; i < 2; i++) {
+//                            for (int j = -1; j < 2; j++) {
+//                                if (i != 0 || j != 0) {
+//                                    int testCol = j + x;
+//                                    int testRow = i + y;
+//
+//                                    try {
+//                                        if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
+//                                            numUnknown++;
+//                                        } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
+//                                            numFlags++;
+//                                        }
+//                                    } catch (ArrayIndexOutOfBoundsException e) {
+//                                       // System.out.println("Array out of bounds");
+//
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//
+//
+//                        if (numUnknown == 2) {
+//                            System.out.println("Making a guess around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "numUnknowns: " + numUnknown);
+//                            for (int i = -1; i < 2; i++) {
+//                                for (int j = -1; j < 2; j++) {
+//                                    if (i != 0 || j != 0) {
+//                                        int testCol = j + x;
+//                                        int testRow = i + y;
+//
+//                                        try {
+//                                            if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
+//                                                int[] tilePos = screen.getTilePos(testRow, testCol);
+//                                                screen.robot.mouseMove(tilePos[0], tilePos[1]);
+//                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+//                                                Thread.sleep(10);
+//                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+//                                                Thread.sleep(10);
+//                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+//                                                Thread.sleep(10);
+//                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+//                                                endTime = System.nanoTime();
+//                                                duration = (endTime - startTime) / 1000000000.0;
+//                                                System.out.println("The duration is: " + duration);
+//                                                return;
+//                                            }
+//                                        } catch (ArrayIndexOutOfBoundsException e) {
+////                                            System.out.println("Array out of bounds");
+//
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                    }
+//                }
+//            }
+//            for (int y = 0; y < ROW_SIZE; y++) {
+//                for (int x = 0; x < COLUMN_SIZE; x++) {
+//                    if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
+//                        int numUnknown = 0;
+//                        int numFlags = 0;
+//                        for (int i = -1; i < 2; i++) {
+//                            for (int j = -1; j < 2; j++) {
+//                                if (i != 0 || j != 0) {
+//                                    int testCol = j + x;
+//                                    int testRow = i + y;
+//
+//                                    try {
+//                                        if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
+//                                            numUnknown++;
+//                                        } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
+//                                            numFlags++;
+//                                        }
+//                                    } catch (ArrayIndexOutOfBoundsException e) {
+////                                        System.out.println("Array out of bounds");
+//
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//
+//
+//                        if (numUnknown != 0) {
+//                            int numGuesses = Math.abs(numUnknown - (mineGrid[y][x] - numFlags));
+//                            System.out.println("Making " + numGuesses + " guesses around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "numUnknowns: " + numUnknown);
+//
+//                            for (int i = -1; i < 2; i++) {
+//                                for (int j = -1; j < 2; j++) {
+//                                    if (i != 0 || j != 0) {
+//                                        int testCol = j + x;
+//                                        int testRow = i + y;
+//
+//                                        try {
+//                                            if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
+//                                                if (numGuesses == 0) {
+//                                                    endTime = System.nanoTime();
+//                                                    duration = (endTime - startTime) / 1000000000.0;
+//                                                    System.out.println("The duration is: " + duration);
+//                                                    return;
+//                                                }
+//                                                int[] tilePos = screen.getTilePos(testRow, testCol);
+//                                                screen.robot.mouseMove(tilePos[0], tilePos[1]);
+//                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+//                                                Thread.sleep(10);
+//                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+//                                                Thread.sleep(10);
+//                                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+//                                                Thread.sleep(10);
+//                                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+//                                                numGuesses--;
+//                                            }
+//                                        } catch (ArrayIndexOutOfBoundsException e) {
+//                                           // System.out.println("Array out of bounds");
+//
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                    }
+//                }
+//            }
 
             endTime = System.nanoTime();
             duration = (endTime - startTime) / 1000000000.0;
