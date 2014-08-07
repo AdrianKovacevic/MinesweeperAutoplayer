@@ -20,31 +20,29 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Screen {
 
-    final byte ROW_SIZE = 16;
-    final byte COLUMN_SIZE = 30;
-    final byte CELL_UNKNOWN = 0;
-    final byte CELL_ONE = 1;
-    final byte CELL_TWO = 2;
-    final byte CELL_THREE = 3;
-    final byte CELL_FOUR = 4;
-    final byte CELL_FIVE = 5;
-    final byte CELL_SIX = 6;
-    final byte CELL_SEVEN = 7;
-    final byte CELL_BLANK = 11;
-    final byte CELL_FLAG = 15;
-    final byte CELL_SIDE_LENGTH = 18;
+    private final byte CELL_UNKNOWN = 0;
+    private final byte CELL_ONE = 1;
+    private final byte CELL_TWO = 2;
+    private final byte CELL_THREE = 3;
+    private final byte CELL_FOUR = 4;
+    private final byte CELL_FIVE = 5;
+    private final byte CELL_SIX = 6;
+    private final byte CELL_SEVEN = 7;
+    private final byte CELL_BLANK = 11;
+    private final byte CELL_FLAG = 15;
+    private final byte CELL_SIDE_LENGTH = 18;
 
 
-    final int[] CELL_ONE_COLOUR = {61, 80, 190};
-    final int[] CELL_TWO_COLOUR = {30, 103, 2};
-    final int[] CELL_THREE_COLOUR = {170, 12, 12};
-    final int[] CELL_FOUR_COLOUR = {1, 1, 130};
-    final int[] CELL_FIVE_COLOUR = {129, 10, 10};
-    final int[] CELL_SIX_COLOUR = {5, 125, 122};
-    final int[] CELL_SEVEN_COLOUR = {173, 4, 5};
-    final int[] CELL_BLANK_COLOUR = {172, 181, 212};
-    final int[] CELL_FLAG_COLOUR = {161, 159, 162};
-    final int[] GAMEOVER_COLOUR = {240, 240, 240};
+    private final int[] CELL_ONE_COLOUR = {61, 80, 190};
+    private final int[] CELL_TWO_COLOUR = {30, 103, 2};
+    private final int[] CELL_THREE_COLOUR = {170, 12, 12};
+    private final int[] CELL_FOUR_COLOUR = {1, 1, 130};
+    private final int[] CELL_FIVE_COLOUR = {129, 10, 10};
+    private final int[] CELL_SIX_COLOUR = {5, 125, 122};
+    private final int[] CELL_SEVEN_COLOUR = {173, 4, 5};
+    private final int[] CELL_BLANK_COLOUR = {172, 181, 212};
+    private final int[] CELL_FLAG_COLOUR = {161, 159, 162};
+    private final int[] GAMEOVER_COLOUR = {240, 240, 240};
 
     private byte[][] mineGrid;
 
@@ -68,21 +66,27 @@ public class Screen {
 
     private boolean isGameOver;
 
-    final private ArrayList<Integer> tasksPerThread;
+    private byte rowSize;
+
+    private byte columnSize;
+
+    private int totalMines;
+
+    private ArrayList<Integer> tasksPerThread;
 
     final private Lock lock = new ReentrantLock();
 
     // bug fixing purposes
 
-    public ArrayList<String> one;
-    public ArrayList<String> two;
-    public ArrayList<String> three;
-    public ArrayList<String> four;
-    public ArrayList<String> five;
-    public ArrayList<String> six;
-    public ArrayList<String> seven;
-    public ArrayList<String> blank;
-    public ArrayList<String> flag;
+    private ArrayList<String> one;
+    private ArrayList<String> two;
+    private ArrayList<String> three;
+    private ArrayList<String> four;
+    private ArrayList<String> five;
+    private ArrayList<String> six;
+    private ArrayList<String> seven;
+    private ArrayList<String> blank;
+    private ArrayList<String> flag;
 
 
     public Screen() throws AWTException {
@@ -106,9 +110,6 @@ public class Screen {
         flag = new ArrayList<String>();
         tasksPerThread = new ArrayList<Integer>();
 
-        getTasksPerThread(tasksPerThread);
-
-        mineGrid = new byte[ROW_SIZE][COLUMN_SIZE];
         try {
             robot = new Robot();
         } catch (AWTException e) {
@@ -161,11 +162,23 @@ public class Screen {
         return numFlags;
     }
 
+    public int getTotalMines () {
+        return totalMines;
+    }
+
+    public byte getRowSize () {
+        return rowSize;
+    }
+
+    public byte getColumnSize () {
+        return columnSize;
+    }
+
 
     private void getTasksPerThread(ArrayList<Integer> tasksPerThread) {
         int numCores = Runtime.getRuntime().availableProcessors();
 //        int numCores = 7;
-        int totalTasks = ROW_SIZE * COLUMN_SIZE;
+        int totalTasks = rowSize * columnSize;
         int minNumThreadsPerCore = totalTasks / numCores;
         int remainingThreads = totalTasks % numCores;
 
@@ -193,13 +206,13 @@ public class Screen {
         @Override
         public void run() {
 
-            int startRow = termStartIndex / COLUMN_SIZE;
-            int endRow = (termStartIndex + numTerms) / COLUMN_SIZE;
-            int startColumn = termStartIndex % COLUMN_SIZE;
+            int startRow = termStartIndex / columnSize;
+            int endRow = (termStartIndex + numTerms) / columnSize;
+            int startColumn = termStartIndex % columnSize;
             int termsLeft = numTerms;
 
             int column = startColumn;
-            //int endColumn = (termStart + numTerms) / COLUMN_SIZE;
+            //int endColumn = (termStart + numTerms) / columnSize;
 
             // 17 and 13 are offset values from the top corner of the mine grid to a certain pixel on each cell, to
             // best determine what the cell contains
@@ -213,9 +226,9 @@ public class Screen {
                 int y = mineGridTopCornerY + 17 + (CELL_SIDE_LENGTH * row);
 
 
-                while (column != 30 && termsLeft != 0) {
+                while (column != columnSize && termsLeft != 0) {
 
-                    column = column % COLUMN_SIZE;
+                    column = column % columnSize;
 
 
 
@@ -339,7 +352,7 @@ public class Screen {
                     break;
                 }
 
-                column = column % COLUMN_SIZE;
+                column = column % columnSize;
             }
 
 
@@ -396,6 +409,34 @@ public class Screen {
         int minesweeperBottomCornerX = rect[2];
         int minesweeperBottomCornerY = rect[3];
 
+        int mineSweeperHeight = minesweeperBottomCornerY - minesweeperTopCornerY;
+        int mineSweeperWidth = minesweeperBottomCornerX - minesweeperTopCornerX;
+
+        if (mineSweeperHeight > 320) {
+            if (mineSweeperWidth > 500) {
+                // advanced
+                System.out.println("Playing on advanced.");
+                rowSize = 16;
+                columnSize = 30;
+                totalMines = 99;
+
+            } else {
+                // intermediate
+                System.out.println("Playing on intermediate.");
+                rowSize = 16;
+                columnSize = 16;
+                totalMines = 40;
+
+            }
+        } else {
+            // beginner
+            System.out.println("Playing on beginner.");
+            rowSize = 9;
+            columnSize = 9;
+            totalMines = 10;
+
+        }
+
         int numConsecutiveBlackPixels = 0;
 
         for (int y = minesweeperTopCornerY; y < minesweeperBottomCornerY; y++) {
@@ -430,24 +471,14 @@ public class Screen {
 
         }
 
-//        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
-
-//        robot.mouseMove(mineGridTopCornerX + 31, mineGridTopCornerY + 17);
-
-//        BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX + 31, mineGridTopCornerY + 17, 10, 10);
-//        File outputfile = new File("saved3.png");
-//        try {
-//            ImageIO.write(ss, "png", outputfile);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-
         if (numConsecutiveBlackPixels != 8) {
             mineGridTopCornerX = rect[0] + 36;
             mineGridTopCornerY = rect[1] +  78;
         }
 
+        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
+
+        mineGrid = new byte[rowSize][columnSize];
 //        BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX, mineGridTopCornerY, 10, 10);
 //        File outputfile = new File("saved.png");
 //        try {
@@ -460,6 +491,17 @@ public class Screen {
 
         mineGridBottomCornerX = rect[2] - 37;
         mineGridBottomCornerY = rect[3] - 40;
+        robot.mouseMove(mineGridBottomCornerX, mineGridBottomCornerY);
+//        ss = screenShot.getSubimage(mineGridBottomCornerX, mineGridBottomCornerY, 10, 10);
+//        outputfile = new File("saved2.png");
+//        try {
+//            ImageIO.write(ss, "png", outputfile);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        getTasksPerThread(tasksPerThread);
+
 
     }
 
@@ -469,249 +511,11 @@ public class Screen {
 
         takeScreenshot();
 
-        for (int y = 0; y < ROW_SIZE; y++) {
+        for (int y = 0; y < rowSize; y++) {
             Arrays.fill(mineGrid[y], (byte) 0);
         }
 
-//        int[] rect;
-//
-//
-//        try {
-//            rect = GetWindowRect.getRect("Minesweeper");
-//        } catch (GetWindowRect.WindowNotFoundException e) {
-//            e.printStackTrace();
-//            throw e;
-//        } catch (GetWindowRect.GetWindowRectException e) {
-//            e.printStackTrace();
-//            throw e;
-//        }
-//
-//        int minesweeperTopCornerX = rect[0];
-//        int minesweeperTopCornerY = rect[1];
-//        int minesweeperBottomCornerX = rect[2];
-//        int minesweeperBottomCornerY = rect[3];
-//
-//        int numConsecutiveBlackPixels = 0;
-//
-//        for (int y = minesweeperTopCornerY; y < minesweeperBottomCornerY; y++) {
-//            for (int x = minesweeperTopCornerX; x < minesweeperBottomCornerX; x++) {
-//                Color pixel = new Color(screenShot.getRGB(x, y));
-//
-//                numConsecutiveBlackPixels = 0;
-//
-//                if (pixel.getRed() <= 10 && pixel.getGreen() <= 10 && pixel.getBlue() <= 10) {
-////                    robot.mouseMove(x, y);
-//                    numConsecutiveBlackPixels++;
-//                    for (int i = 1; i < 8; i++) {
-//                        Color pixelBeside = new Color(screenShot.getRGB(x + i, y));
-//                        if (pixelBeside.getRed() <= 10 && pixelBeside.getGreen() <= 10 && pixelBeside.getBlue() <= 10
-//                                ) {
-//                            numConsecutiveBlackPixels++;
-//                        }
-//                    }
-//                }
-//
-//                if (numConsecutiveBlackPixels == 8) {
-//                    mineGridTopCornerX = x + 21;
-//                    mineGridTopCornerY = y + 33;
-//                    break;
-//                }
-//
-//            }
-//
-//            if (numConsecutiveBlackPixels == 8) {
-//                break;
-//            }
-//
-//        }
-
-//        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
-
-//        robot.mouseMove(mineGridTopCornerX + 31, mineGridTopCornerY + 17);
-
-//        BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX + 31, mineGridTopCornerY + 17, 10, 10);
-//        File outputfile = new File("saved3.png");
-//        try {
-//            ImageIO.write(ss, "png", outputfile);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-
-//        if (numConsecutiveBlackPixels != 8) {
-//            mineGridTopCornerX = rect[0] + 36;
-//            mineGridTopCornerY = rect[1] +  78;
-//        }
-
-//        BufferedImage ss = screenShot.getSubimage(mineGridTopCornerX, mineGridTopCornerY, 10, 10);
-//        File outputfile = new File("saved.png");
-//        try {
-//            ImageIO.write(ss, "png", outputfile);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-
-
-//        mineGridBottomCornerX = rect[2] - 37;
-//        mineGridBottomCornerY = rect[3] - 40;
-
-//        robot.mouseMove(mineGridTopCornerX, mineGridTopCornerY);
-
-
-//        one.clear();
-//        two.clear();
-//        three.clear();
-//        four.clear();
-//        five.clear();
-//        six.clear();
-//        blank.clear();
-//        flag.clear();
-
         numFlags = 0;
-
-//        int gameOverPopup = 0;
-//        isGameOver = false;
-//        int testNum = 0;
-        // 17 and 13 are offset values from the top corner of the mine grid to a certain pixel on each cell, to
-        // best determine what the cell contains
-
-//        int y = mineGridTopCornerY + 17;
-//
-//
-//        for (int row = 0; row < ROW_SIZE; row++) {
-//
-//            int x = mineGridTopCornerX + 13;
-//
-//            for (int column = 0; column < COLUMN_SIZE; column++) {
-//
-//                // the culprit for the extreme slowness was the robot.getPixelColor method, which was called
-//                // every time it thought it found a one
-//
-//
-//                Color colour = new Color(screenShot.getRGB(x, y));
-//
-//                int[] colourRGBValues = new int[3];
-//
-//                colourRGBValues[0] = colour.getRed();
-//                colourRGBValues[1] = colour.getGreen();
-//                colourRGBValues[2] = colour.getBlue();
-//
-//                Color colourAbove = new Color(screenShot.getRGB(x, y - 1));
-//
-//
-//                int[] colourAboveRGBValues = new int[3];
-//
-//                colourAboveRGBValues[0] = colourAbove.getRed();
-//                colourAboveRGBValues[1] = colourAbove.getGreen();
-//                colourAboveRGBValues[2] = colourAbove.getBlue();
-//
-//
-//                Color colourRight = new Color(screenShot.getRGB(x + 1, y));
-//
-//                int[] colourRightRGBValues = new int[3];
-//
-//                colourRightRGBValues[0] = colourRight.getRed();
-//                colourRightRGBValues[1] = colourRight.getGreen();
-//                colourRightRGBValues[2] = colourRight.getBlue();
-//
-//                Color colourFarBelow = new Color(screenShot.getRGB(x, y + 2));
-//
-//                int[] colourFarBelowRGBValues = new int[3];
-//
-//                colourFarBelowRGBValues[0] = colourFarBelow.getRed();
-//                colourFarBelowRGBValues[1] = colourFarBelow.getGreen();
-//                colourFarBelowRGBValues[2] = colourFarBelow.getBlue();
-////                robot.mouseMove(x, y);
-//
-//
-////                    if (testNum == COLUMN_SIZE * 2
-////                            + 2) {
-////                        robot.mouseMove(x, y);
-////                        System.out.println(colourRGBValues);
-////
-////                        colour = new Color(screenShot.getRGB(x, y - 1));
-////
-////                        colourRGBValues = new int[3];
-////
-////                        colourRGBValues[0] = colour.getRed();
-////                        colourRGBValues[1] = colour.getGreen();
-////                        colourRGBValues[2] = colour.getBlue();
-////                        System.out.println(colourRGBValues);
-////
-////                    }
-//
-//
-//                if (isColourMatch(colourRGBValues, GAMEOVER_COLOUR, 0)) {
-//                    gameOverPopup += 1;
-//                    for (int i = 1; i < 25; i++) {
-//                        Color gameOverColour = new Color(screenShot.getRGB(x + i, y));
-//                        int[] gameOverColourRGBValues = new int[3];
-//                        gameOverColourRGBValues[0] = gameOverColour.getRed();
-//                        gameOverColourRGBValues[1] = gameOverColour.getGreen();
-//                        gameOverColourRGBValues[2] = gameOverColour.getBlue();
-//                        if (isColourMatch(gameOverColourRGBValues, GAMEOVER_COLOUR, 0)) {
-//                            gameOverPopup += 1;
-//                        }
-//                    }
-//                    if (gameOverPopup == 25) {
-//                        isGameOver = true;
-//                        break;
-//                    } else {
-//                        gameOverPopup = 0;
-//                    }
-//
-//                }
-//
-//                if (!isGameOver) {
-//
-//                    if (isColourMatch(colourRightRGBValues, CELL_FOUR_COLOUR, 15)) {
-//                        four.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-//                        mineGrid[row][column] = CELL_FOUR;
-//                    } else if (isColourMatch(colourRGBValues, CELL_THREE_COLOUR, 35) || isColourMatch(colourAboveRGBValues, CELL_THREE_COLOUR, 35)) {
-//                        three.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-//                        mineGrid[row][column] = CELL_THREE;
-//
-//                    } else if (Math.abs(colourRGBValues[0] - 62) < 4 && Math.abs(colourRGBValues[1] - 80) < 2 && Math.abs(colourRGBValues[2] - 189) < 2 && colourFarBelowRGBValues[0] >= 150 && colourFarBelowRGBValues[1] >= 150) {
-//                        one.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-//                        mineGrid[row][column] = CELL_ONE;
-//                    } else if (colourRGBValues[0] <= 230 && colourRGBValues[0] >= 160 && colourRGBValues[1] <= 245 && colourRGBValues[1] >= 170 && colourRGBValues[2] <= 255 && colourRGBValues[2] >= 200) {
-//                        blank.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-//                        mineGrid[row][column] = CELL_BLANK;
-//                    } else if (isColourMatch(colourRGBValues, CELL_TWO_COLOUR, 30)) {
-//                        two.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-//                        mineGrid[row][column] = CELL_TWO;
-//                    } else if (isColourMatch(colourRGBValues, CELL_FIVE_COLOUR, 30) || isColourMatch(colourAboveRGBValues, CELL_FIVE_COLOUR, 30)) {
-//                        five.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-//                        mineGrid[row][column] = CELL_FIVE;
-//                    } else if (isColourMatch(colourRGBValues, CELL_SIX_COLOUR, 30) || isColourMatch(colourAboveRGBValues, CELL_SIX_COLOUR, 30)) {
-//                        six.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-//                        mineGrid[row][column] = CELL_SIX;
-//                    } else if (isColourMatch(colourRGBValues, CELL_FLAG_COLOUR, 35)) {
-//                        flag.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
-//                        numFlags++;
-//                        mineGrid[row][column] = CELL_FLAG;
-//                    }
-//
-//                    // move on to next cell, by moving the x coordinate exactly one cell length further
-//
-//                    x += CELL_SIDE_LENGTH;
-//
-//                    testNum++;
-//                }
-//
-//
-//
-//            }
-//
-//            if (isGameOver) {
-//                break;
-//            }
-//
-//            y += CELL_SIDE_LENGTH;
-//
-//        }
-
         isGameOver = false;
 
         ExecutorService executor = Executors.newFixedThreadPool(tasksPerThread.size());
