@@ -1,6 +1,9 @@
 package com.company;
 
 
+import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.WinDef;
+
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.event.InputEvent;
@@ -11,20 +14,50 @@ import java.util.Random;
 
 public class Main {
 
+    final static byte CELL_UNKNOWN = 0;
+    final static byte CELL_ONE = 1;
+    final static byte CELL_TWO = 2;
+    final static byte CELL_THREE = 3;
+    final static byte CELL_FOUR = 4;
+    final static byte CELL_FIVE = 5;
+    final static byte CELL_SIX = 6;
+    final static byte CELL_SEVEN = 7;
+    final static byte CELL_BLANK = 11;
+    final static byte CELL_FLAG = 15;
+
+    public static void findNumSurroundingFlagsAndUnkown (Cell[][] mineGrid, int row, int column) {
+        int numFlags = 0;
+
+        // goes to all adjacent cells in the array to see how many flags and unknown cells there are
+
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                if (i != 0 || j != 0) {
+                    int testCol = j + column;
+                    int testRow = i + row;
+
+                    try {
+                        if (mineGrid[testRow][testCol].getValue() == CELL_UNKNOWN) {
+                            int[] coordinates = {testRow, testCol};
+                            mineGrid[row][column].addSurroundingUnknownCoordinates(coordinates);
+                        } else if (mineGrid[testRow][testCol].getValue() == CELL_FLAG) {
+                            numFlags++;
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        // catching and doing nothing is fine as the out of play cells will not be flags
+                        // or unknown
+                    }
+                }
+            }
+        }
+
+        mineGrid[row][column].setNumSurroundingFlags(numFlags);
+
+        return;
+    }
+
 
     public static void doNextMove (Screen screen) throws InterruptedException, GetWindowRect.GetWindowRectException, GetWindowRect.WindowNotFoundException {
-        final byte CELL_UNKNOWN = 0;
-        final byte CELL_ONE = 1;
-        final byte CELL_TWO = 2;
-        final byte CELL_THREE = 3;
-        final byte CELL_FOUR = 4;
-        final byte CELL_FIVE = 5;
-        final byte CELL_SIX = 6;
-        final byte CELL_SEVEN = 7;
-        final byte CELL_BLANK = 11;
-        final byte CELL_FLAG = 15;
-        final byte FINAL_ROW_INDEX = 15;
-        final byte FINAL_COLUMN_INDEX = 29;
 
         int totalMines = screen.getTotalMines();
         byte rowSize = screen.getRowSize();
@@ -64,7 +97,7 @@ public class Main {
             return;
         }
 
-        byte[][] mineGrid = screen.getMineGrid();
+        Cell[][] mineGrid = screen.getMineGrid();
 
         // fills all the unknown cells in the guessing grid as a 0.
         // in this way, all cells that do not have any unknown cells around it will never be guessed on, and when it
@@ -73,8 +106,8 @@ public class Main {
 
         for (int row = 0; row < rowSize; row++) {
             for (int column = 0; column < columnSize; column++) {
-                if (mineGrid[row][column] == CELL_UNKNOWN) {
-                    guessingGrid[row][column] = CELL_UNKNOWN;
+                if (mineGrid[row][column].getValue() == CELL_UNKNOWN) {
+                    guessingGrid[row][column] = 0.0;
                 }
             }
         }
@@ -82,7 +115,7 @@ public class Main {
 
         for (int y = 0; y < rowSize; y++) {
             for (int x = 0; x < columnSize; x++) {
-                if (mineGrid[y][x] != 0) {
+                if (mineGrid[y][x].getValue() != CELL_UNKNOWN) {
                     isEmpty = false;
                 }
             }
@@ -104,14 +137,14 @@ public class Main {
 
             // this first pair of loops checks all cells for guaranteed moves, and keeps track of any possible guesses
             // the next loop checks for the cell with the least number of guesses, and performs the guesses on it
-            for (int y = 0; y < rowSize; y++) {
-                for (int x = 0; x < columnSize; x++) {
+            for (int row = 0; row < rowSize; row++) {
+                for (int column = 0; column < columnSize; column++) {
                     // iterates through the grid to click all unknown cells if all mines have been flagged
                     // otherwise, it goes to a numbered cell and counts the adjacent flags and unknown cells
 
 
-                    if (screen.getNumFlaggedMines() == totalMines && mineGrid[y][x] == CELL_UNKNOWN) {
-                        int[] tilePos = screen.getTilePos(y, x);
+                    if (screen.getNumFlaggedMines() == totalMines && mineGrid[row][column].getValue() == CELL_UNKNOWN) {
+                        int[] tilePos = screen.getTilePos(row, column);
                         screen.robot.mouseMove(tilePos[0], tilePos[1]);
                         screen.robot.mousePress(InputEvent.BUTTON1_MASK);
                         Thread.sleep(10);
@@ -120,40 +153,23 @@ public class Main {
                         duration = (endTime - startTime) / 1000000000.0;
                         System.out.println("The duration is: " + duration);
                         return;
-                    } else if (mineGrid[y][x] != CELL_UNKNOWN && mineGrid[y][x] != CELL_BLANK && mineGrid[y][x] != CELL_FLAG) {
-                        int numUnknown = 0;
-                        int numFlags = 0;
+                    } else if (mineGrid[row][column].getValue() != CELL_UNKNOWN && mineGrid[row][column].getValue() != CELL_BLANK && mineGrid[row][column].getValue() != CELL_FLAG) {
 
                         // goes to all adjacent cells in the array to see how many flags and unknown cells there are
 
-                        for (int i = -1; i < 2; i++) {
-                            for (int j = -1; j < 2; j++) {
-                                if (i != 0 || j != 0) {
-                                    int testCol = j + x;
-                                    int testRow = i + y;
+                        findNumSurroundingFlagsAndUnkown(mineGrid, row, column);
 
-                                    try {
-                                        if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
-                                            numUnknown++;
-                                        } else if (mineGrid[testRow][testCol] == CELL_FLAG) {
-                                            numFlags++;
-                                        }
-                                    } catch (ArrayIndexOutOfBoundsException e) {
-                                        // catching and doing nothing is fine as the out of play cells will not be flags
-                                        // or unknown
-                                    }
-                                }
-                            }
-                        }
+                        int numUnknown = mineGrid[row][column].getNumSurroundingUnknown();
+                        int numFlags = mineGrid[row][column].getNumSurroundingFlags();
 
                         // if the number of adjacent flags is equal to the number, it expands the cell if there are
                         // unknown squares adjacent to it
 
-                        if (mineGrid[y][x] == numFlags && numUnknown != 0) {
+                        if (mineGrid[row][column].getValue() == numFlags && numUnknown != 0) {
                             // expand the tile since possible
-                            System.out.println("Expanding around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "numUnknowns: " + numUnknown);
+                            System.out.println("Expanding around a " + mineGrid[row][column].getValue() + " at row " + row + " and column " + column + ". Numflags: " + numFlags + ". " + "Numunknowns: " + numUnknown);
 
-                            int[] tilePos = screen.getTilePos(y, x);
+                            int[] tilePos = screen.getTilePos(row, column);
                             screen.robot.mouseMove(tilePos[0], tilePos[1]);
                             screen.robot.mousePress(InputEvent.BUTTON2_MASK);
                             Thread.sleep(10);
@@ -165,18 +181,18 @@ public class Main {
 
                         // otherwise, if not all of the number's adjacent cells have been flagged, but there are
                         // the same number of unknown cells as leftover mines, then it flags all of the unknown cells
-                        } else if (mineGrid[y][x] - numFlags == numUnknown && numUnknown != 0) {
-                            System.out.println("Flagging around a " + mineGrid[y][x] + " at row " + y + " and column " + x + ". Numflags: " + numFlags + ". " + "numUnknowns: " + numUnknown);
+                        } else if (mineGrid[row][column].getValue() - numFlags == numUnknown && numUnknown != 0) {
+                            System.out.println("Flagging around a " + mineGrid[row][column].getValue() + " at row " + row + " and column " + column + ". Numflags: " + numFlags + ". " + "Numunknowns: " + numUnknown);
 
                             // mark all surrounding tiles with flags
                             for (int i = -1; i < 2; i++) {
                                 for (int j = -1; j < 2; j++) {
                                     if (i != 0 || j != 0) {
-                                        int testCol = j + x;
-                                        int testRow = i + y;
+                                        int testCol = j + column;
+                                        int testRow = i + row;
 
                                         try {
-                                            if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
+                                            if (mineGrid[testRow][testCol].getValue() == CELL_UNKNOWN) {
                                                 int[] tilePos = screen.getTilePos(testRow, testCol);
                                                 screen.robot.mouseMove(tilePos[0], tilePos[1]);
                                                 screen.robot.mousePress(InputEvent.BUTTON3_MASK);
@@ -201,13 +217,33 @@ public class Main {
                         // must take a guess. here it will compute how many guesses are necessary around the cell
 
                         } else if (numUnknown != 0) {
-                            int numMines = mineGrid[y][x] - numFlags;
+                            int numMines = mineGrid[row][column].getValue() - numFlags;
                             double chanceOfCorrectGuess = 1.0 - ((double) numMines / (double) numUnknown);
-                            guessingGrid[y][x] = chanceOfCorrectGuess;
+                            guessingGrid[row][column] = chanceOfCorrectGuess;
                         }
                     }
                 }
             }
+
+            // algorithm that doesn't guess yet, it uses matrices to enumerate all of the squares that must be mines,
+            // and the ones that must not be
+            // uses the guessing grid as it has the valuable information of numbered cells that are adjacent to more
+            // than one unknown square
+
+
+
+            for (int row = 0; row < rowSize; row++) {
+                for (int column = 0; column < columnSize; column++) {
+
+                    if (guessingGrid[row][column] > 0.01) {
+
+
+
+                    }
+
+                }
+            }
+
 
             // put guessing algorithm in a larger for loop, from 1 to 7, depending on how many guesses it needs to make
             // if no guesses possible around a number, then finally just guess on other unknown cells since some mines
@@ -216,7 +252,7 @@ public class Main {
             // iterate through the guessing chances for each number that is not able to be expanded, look for the
             // highest probability equal or less than 50%, and guess once on it. return, and check to see if anything
             // new opened up that does not have to be guessed
-            // 50% or less prevents guessing on something like a 1 with 8 empty cells around it
+            // 50% or less prevents guessing on something like a 1 with 8 empty cells around it'
 
 
             int[] highestGuessingChanceCell = new int[2];
@@ -258,7 +294,7 @@ public class Main {
                 guessColumn = highestGuessingChanceCell[1];
             }
 
-            System.out.println("Making a guess around a " + mineGrid[guessRow][guessColumn] + " at row " + guessRow + " and column " +
+            System.out.println("Making a guess around a " + mineGrid[guessRow][guessColumn].getValue() + " at row " + guessRow + " and column " +
                     guessColumn + ". The chance of guessing correctly is: " + guessingGrid[guessRow][guessColumn] * 100.0 + "%.");
 
             for (int i = -1; i < 2; i++) {
@@ -268,16 +304,13 @@ public class Main {
                         int testCol = j + guessColumn;
 
                         try {
-                            if (mineGrid[testRow][testCol] == CELL_UNKNOWN) {
+                            if (mineGrid[testRow][testCol].getValue() == CELL_UNKNOWN) {
                                 int[] tilePos = screen.getTilePos(testRow, testCol);
                                 screen.robot.mouseMove(tilePos[0], tilePos[1]);
                                 screen.robot.mousePress(InputEvent.BUTTON1_MASK);
                                 Thread.sleep(10);
                                 screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
                                 Thread.sleep(10);
-                                screen.robot.mousePress(InputEvent.BUTTON1_MASK);
-                                Thread.sleep(10);
-                                screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
                                 endTime = System.nanoTime();
                                 duration = (endTime - startTime) / 1000000000.0;
                                 System.out.println("The duration is: " + duration);
@@ -316,8 +349,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        System.out.println("Make sure that you are using blue tiles, " +
-                "playing on advanced, and that the window size is as small as possible.");
         // add setup that changes to smallest windows size , changes to advanced, and changes to blue squares
         // add support for other difficulties
         // add better window tracking capabilities across Windows 8 and non-aero versions of the game
@@ -512,6 +543,17 @@ public class Main {
         try {
             while (true) {
 //                long startTime = System.nanoTime();
+
+                WinDef.HWND hwnd = User32.INSTANCE.FindWindow(null, "Minesweeper"); // window title
+                if (hwnd == null) {
+                    System.out.println("Minesweeper is not running!");
+                    return;
+                } else {
+                    // makes sure it is not minimized
+                    User32.INSTANCE.ShowWindow(hwnd, 9);
+                }
+
+
                 doNextMove(screen);
 //                long endTime = System.nanoTime();
 //                double duration = (endTime - startTime) / 1000000000.0;
