@@ -367,6 +367,7 @@ public class Main {
                         }
 
                         if (solvedRow.size() == 1) {
+                            solvedSomething = true;
                             for (int column = 0; column < solvedRow.get(0).length; column++) {
                                 // click the empty cells
                                 if (solvedRow.get(0)[column] == 0) {
@@ -387,9 +388,10 @@ public class Main {
                                     System.out.println("Solved a cell at row: " + cellRow + " and column: " + cellColumn + ". It is a mine.");
                                     int[] tilePos = screen.getTilePos(cellRow, cellColumn);
                                     screen.robot.mouseMove(tilePos[0], tilePos[1]);
-                                    screen.robot.mousePress(InputEvent.BUTTON2_MASK);
+                                    screen.robot.mousePress(InputEvent.BUTTON3_MASK);
                                     Thread.sleep(10);
-                                    screen.robot.mouseRelease(InputEvent.BUTTON2_MASK);
+                                    screen.robot.mouseRelease(InputEvent.BUTTON3_MASK);
+                                    screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
                                 }
                             }
                         }
