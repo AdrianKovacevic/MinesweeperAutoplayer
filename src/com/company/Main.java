@@ -1,16 +1,21 @@
 package com.company;
 
 
+import com.google.common.primitives.Doubles;
+import com.sun.deploy.util.ArrayUtil;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
+import org.jblas.Decompose;
+import org.jblas.DoubleMatrix;
+import org.jblas.MatrixFunctions;
 
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Random;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class Main {
 
@@ -230,19 +235,92 @@ public class Main {
             // uses the guessing grid as it has the valuable information of numbered cells that are adjacent to more
             // than one unknown square
 
+            long testStart = System.nanoTime();
 
+            ArrayList<Cell> matrixColumnCells = new ArrayList<Cell>();
+            ArrayList<ArrayList<Double>> dynamicMatrix = new ArrayList<ArrayList<Double>>();
+            ArrayList<Double> matrixConstants = new ArrayList<Double>();
+
+            int numCellsSurroundedWithUnknowns = 0;
 
             for (int row = 0; row < rowSize; row++) {
                 for (int column = 0; column < columnSize; column++) {
 
                     if (guessingGrid[row][column] > 0.01) {
+                        dynamicMatrix.add(new ArrayList<Double>());
+                        if (dynamicMatrix.size() != 0) {
+                            for (int i = 0; i < dynamicMatrix.get(0).size(); i++) {
+                                dynamicMatrix.get(numCellsSurroundedWithUnknowns).add(0.0);
+                            }
+                        }
 
+                        for (int i = 0; i < mineGrid[row][column].getNumSurroundingUnknown(); i++) {
+                            int[] unknownCoordinates = mineGrid[row][column].getSurroundingUnknownCoordinates(i);
+                            int unknownRow = unknownCoordinates[0];
+                            int unknownColumn = unknownCoordinates[1];
 
+                            if (!matrixColumnCells.contains(mineGrid[unknownRow][unknownColumn])) {
+                                matrixColumnCells.add(mineGrid[unknownRow][unknownColumn]);
+                                for (int j = 0; j < dynamicMatrix.size(); j++) {
+                                    dynamicMatrix.get(j).add(0.0);
+                                }
+                            }
+
+                            int indexOfCurrentUnknownCell = matrixColumnCells.indexOf(mineGrid[unknownRow][unknownColumn]);
+                            dynamicMatrix.get(numCellsSurroundedWithUnknowns).set(indexOfCurrentUnknownCell, 1.0);
+
+                        }
+
+                        matrixConstants.add((double) (mineGrid[row][column].getValue() - mineGrid[row][column].getNumSurroundingFlags()));
+
+                        numCellsSurroundedWithUnknowns++;
 
                     }
 
                 }
             }
+
+            try {
+                double[][] matrix = new double[dynamicMatrix.size()][dynamicMatrix.get(0).size() + 1];
+                for (int row = 0; row < dynamicMatrix.size(); row++) {
+                    dynamicMatrix.get(row).add(matrixConstants.get(row));
+                    matrix[row] = Doubles.toArray(dynamicMatrix.get(row));
+                }
+                DoubleMatrix jblasMatrix = new DoubleMatrix(matrix);
+
+                // find better RREF function that works on rectangular matrices
+
+
+                Decompose.LUDecomposition<DoubleMatrix> matrixRREF = Decompose.lu(jblasMatrix);
+
+                for (int i = 0; i < matrixRREF.p.getRows(); i++) {
+                    for (int j = 0; j < matrixRREF.p.getColumns(); j++) {
+                        System.out.print(matrixRREF.p.getRow(i).get(j) + " ");
+                    }
+                    System.out.print("\n");
+
+                }
+                for (int i = 0; i < matrixColumnCells.size(); i++) {
+                    System.out.print(matrixColumnCells.get(i).getCoordinates()[0] + " " + matrixColumnCells.get(i).getCoordinates()[1] + " ");
+                }
+                System.out.print("\n");
+
+                System.out.println("Matrix enumeration and reduction took: " + (double) (System.nanoTime() - testStart) / 1000000000.0 + " seconds.");
+
+                Thread.sleep(1);
+
+
+                // apply moves to possible solutions
+                // possibly reduce all of the data type transformations to improve speed
+            } catch (IndexOutOfBoundsException e) {
+                // this is to prevent an exception from being thrown if the program is reading the mine grid
+                // in an intermediate frame (animation of a popup has not resolved)
+                // either the exception can be thrown and caught harmlessly, or the program can be slowed down
+            }
+
+
+
+
 
 
             // put guessing algorithm in a larger for loop, from 1 to 7, depending on how many guesses it needs to make
