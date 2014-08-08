@@ -380,6 +380,7 @@ public class Main {
                                     screen.robot.mousePress(InputEvent.BUTTON1_MASK);
                                     Thread.sleep(10);
                                     screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+
                                 // flag the cells with mines
                                 } else {
                                     Cell solvedCell = simplifiedRowCells.get(column);
@@ -392,6 +393,8 @@ public class Main {
                                     Thread.sleep(10);
                                     screen.robot.mouseRelease(InputEvent.BUTTON3_MASK);
                                     screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
+                                    Thread.sleep(10);
+
                                 }
                             }
                         }
@@ -731,7 +734,7 @@ public class Main {
 //                long endTime = System.nanoTime();
 //                double duration = (endTime - startTime) / 1000000000.0;
 //                System.out.println("The duration is: " + duration);
-                Thread.sleep(50);
+                Thread.sleep(30);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
