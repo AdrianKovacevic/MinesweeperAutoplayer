@@ -227,7 +227,7 @@ public class Main {
                 }
             }
 
-            // algorithm that doesn't guess yet, it uses matrices to enumerate all of the squares that must be mines,
+            // algorithm that doesn't guess yet, it uses matrices to deduce all of the squares that must be mines,
             // and the ones that must not be
             // uses the guessing grid as it has the valuable information of numbered cells that are adjacent to more
             // than one unknown square
@@ -293,7 +293,7 @@ public class Main {
 //                }
 //                System.out.print("\n");
 
-                System.out.println("Matrix enumeration and reduction took: " + (double) (System.nanoTime() - testStart) / 1000000000.0 + " seconds.");
+                System.out.println("Matrix creation and reduction took: " + (double) (System.nanoTime() - testStart) / 1000000000.0 + " seconds.");
 
                 Thread.sleep(1);
 
@@ -417,13 +417,20 @@ public class Main {
             }
 
 
+            // put a function that only activates during low numbers of mines left, and goes through each permutation
+            // of putting the mines on the board and checks if they are valid. If there's only one permutation, then
+            // do those moves
+
+            if (screen.getTotalMines() - screen.getNumFlaggedMines() < 5) {
+                Cell[][] testMineGrid = new Cell[rowSize][columnSize];
+                for (int row = 0; row < rowSize; row++) {
+                    Arrays.fill(testMineGrid, mineGrid);
+                }
 
 
+            }
 
 
-            // put guessing algorithm in a larger for loop, from 1 to 7, depending on how many guesses it needs to make
-            // if no guesses possible around a number, then finally just guess on other unknown cells since some mines
-            // are left (previous check for 99 flags)
 
             // iterate through the guessing chances for each number that is not able to be expanded, look for the
             // highest probability equal or less than 50%, and guess once on it. return, and check to see if anything
@@ -734,7 +741,7 @@ public class Main {
 //                long endTime = System.nanoTime();
 //                double duration = (endTime - startTime) / 1000000000.0;
 //                System.out.println("The duration is: " + duration);
-                Thread.sleep(30);
+                Thread.sleep(50);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
