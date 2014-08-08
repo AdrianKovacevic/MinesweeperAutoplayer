@@ -2,19 +2,16 @@ package com.company;
 
 
 import com.google.common.primitives.Doubles;
-import com.sun.deploy.util.ArrayUtil;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
-import org.jblas.Decompose;
-import org.jblas.DoubleMatrix;
-import org.jblas.MatrixFunctions;
-
+import junit.framework.Assert;
+import org.ejml.data.DenseMatrix64F;
+import org.ejml.ops.CommonOps;
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Main {
@@ -286,24 +283,15 @@ public class Main {
                     dynamicMatrix.get(row).add(matrixConstants.get(row));
                     matrix[row] = Doubles.toArray(dynamicMatrix.get(row));
                 }
-                DoubleMatrix jblasMatrix = new DoubleMatrix(matrix);
 
-                // find better RREF function that works on rectangular matrices
+                DenseMatrix64F matrixRREF = CommonOps.rref(new DenseMatrix64F(matrix), -1, null);
 
-
-                Decompose.LUDecomposition<DoubleMatrix> matrixRREF = Decompose.lu(jblasMatrix);
-
-                for (int i = 0; i < matrixRREF.p.getRows(); i++) {
-                    for (int j = 0; j < matrixRREF.p.getColumns(); j++) {
-                        System.out.print(matrixRREF.p.getRow(i).get(j) + " ");
-                    }
-                    System.out.print("\n");
-
-                }
-                for (int i = 0; i < matrixColumnCells.size(); i++) {
-                    System.out.print(matrixColumnCells.get(i).getCoordinates()[0] + " " + matrixColumnCells.get(i).getCoordinates()[1] + " ");
-                }
-                System.out.print("\n");
+//                matrixRREF.print();
+//
+//                for (int i = 0; i < matrixColumnCells.size(); i++) {
+//                    System.out.print(matrixColumnCells.get(i).getCoordinates()[0] + " " + matrixColumnCells.get(i).getCoordinates()[1] + " ");
+//                }
+//                System.out.print("\n");
 
                 System.out.println("Matrix enumeration and reduction took: " + (double) (System.nanoTime() - testStart) / 1000000000.0 + " seconds.");
 
@@ -311,6 +299,111 @@ public class Main {
 
 
                 // apply moves to possible solutions
+
+                boolean solvedSomething = false;
+
+                for (int matrixRow = 0; matrixRow < matrixRREF.getNumRows(); matrixRow++) {
+
+                    ArrayList<Integer> simplifiedRow = new ArrayList<Integer>();
+                    ArrayList<Cell> simplifiedRowCells = new ArrayList<Cell>();
+
+                    for (int matrixColumn = 0; matrixColumn < matrixRREF.getNumCols() - 1; matrixColumn++) {
+                        if (!(Math.abs(matrixRREF.get(matrixRow, matrixColumn)) < 0.001)) {
+                            simplifiedRow.add((int) matrixRREF.get(matrixRow, matrixColumn));
+                            if ((int) matrixRREF.get(matrixRow, matrixColumn) == 0) {
+                                System.out.println("The change from double to integer went wrong");
+                            }
+
+                            simplifiedRowCells.add(matrixColumnCells.get(matrixColumn));
+
+                        }
+                    }
+
+                    if (simplifiedRow.size() > 0) {
+
+                        int numPermutations = (int) Math.pow(2, simplifiedRow.size());
+                        int[][] equationPermutations = new int[numPermutations][simplifiedRow.size()];
+                        int[][] equationPermutations2 = new int[numPermutations][simplifiedRow.size()];
+
+                        int consecutiveEquivalentDigits = numPermutations / 2;
+
+                        // since the only possibilities of the values of the unknown cells is mine or not mine, they belong
+                        // to a set of {0, 1}
+                        // this is a binary set, so finding all permutations of this can be done by enumerating all numbers
+                        // in binary with the number of bits equal to the number of non-zero entries in the matrix row
+                        // equation
+                        // could also make a 2d array of all numbers from 0 to 2 ^ (number of non-zero entries) - 1 in
+                        // binary with an integer to binary function and multiply each column by its corresponding
+                        // coefficient to correct the sign
+
+
+                        for (int column = 0; column < simplifiedRow.size(); column++) {
+                            for (int row = 0; row < numPermutations;) {
+                                for (int i = 0; i < consecutiveEquivalentDigits; i++) {
+                                    equationPermutations[row][column] = simplifiedRow.get(column);
+                                    row++;
+                                }
+                                for (int i = 0; i < consecutiveEquivalentDigits; i++) {
+                                    equationPermutations[row][column] = 0;
+                                    row++;
+                                }
+                            }
+                            consecutiveEquivalentDigits /= 2;
+                        }
+
+
+                        ArrayList<int[]> solvedRow = new ArrayList<int[]>();
+
+                        for (int row = 0; row < numPermutations; row++) {
+                            int addAllColumns = 0;
+
+                            for (int column = 0; column < simplifiedRow.size(); column++) {
+                                addAllColumns += equationPermutations[row][column];
+                            }
+
+                            if (addAllColumns == (int) matrixRREF.get(matrixRow, matrixRREF.getNumCols() - 1)) {
+                                solvedRow.add(equationPermutations[row]);
+                            }
+                        }
+
+                        if (solvedRow.size() == 1) {
+                            for (int column = 0; column < solvedRow.get(0).length; column++) {
+                                // click the empty cells
+                                if (solvedRow.get(0)[column] == 0) {
+                                    Cell solvedCell = simplifiedRowCells.get(column);
+                                    int cellRow = solvedCell.getCoordinates()[0];
+                                    int cellColumn = solvedCell.getCoordinates()[1];
+                                    System.out.println("Solved a cell at row: " + cellRow + " and column: " + cellColumn + ". It is not a mine.");
+                                    int[] tilePos = screen.getTilePos(cellRow, cellColumn);
+                                    screen.robot.mouseMove(tilePos[0], tilePos[1]);
+                                    screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                                    Thread.sleep(10);
+                                    screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                                // flag the cells with mines
+                                } else {
+                                    Cell solvedCell = simplifiedRowCells.get(column);
+                                    int cellRow = solvedCell.getCoordinates()[0];
+                                    int cellColumn = solvedCell.getCoordinates()[1];
+                                    System.out.println("Solved a cell at row: " + cellRow + " and column: " + cellColumn + ". It is a mine.");
+                                    int[] tilePos = screen.getTilePos(cellRow, cellColumn);
+                                    screen.robot.mouseMove(tilePos[0], tilePos[1]);
+                                    screen.robot.mousePress(InputEvent.BUTTON2_MASK);
+                                    Thread.sleep(10);
+                                    screen.robot.mouseRelease(InputEvent.BUTTON2_MASK);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (solvedSomething) {
+                    return;
+                }
+
+
+
+
+
                 // possibly reduce all of the data type transformations to improve speed
             } catch (IndexOutOfBoundsException e) {
                 // this is to prevent an exception from being thrown if the program is reading the mine grid
