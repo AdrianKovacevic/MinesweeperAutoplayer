@@ -7,6 +7,10 @@ import com.sun.jna.platform.win32.WinDef;
 import junit.framework.Assert;
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.ops.CommonOps;
+import org.paukov.combinatorics.Factory;
+import org.paukov.combinatorics.Generator;
+import org.paukov.combinatorics.ICombinatoricsVector;
+
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.event.InputEvent;
@@ -56,6 +60,24 @@ public class Main {
         mineGrid[row][column].setNumSurroundingFlags(numFlags);
 
         return;
+    }
+
+    private static boolean isMineGridPossible(Cell[][] testMineGrid, int rowSize, int columnSize) {
+        boolean isPossible = true;
+
+        for (int row = 0; row < rowSize; row++) {
+            for (int column = 0; column < columnSize; column++) {
+                if (testMineGrid[row][column].getValue() != CELL_UNKNOWN && testMineGrid[row][column].getValue() != CELL_BLANK && testMineGrid[row][column].getValue() != CELL_FLAG) {
+                    findNumSurroundingFlagsAndUnkown(testMineGrid, row, column);
+
+                    if (testMineGrid[row][column].getValue() - testMineGrid[row][column].getNumSurroundingFlags() != 0) {
+                        isPossible = false;
+                    }
+                }
+            }
+        }
+
+        return isPossible;
     }
 
 
@@ -231,12 +253,28 @@ public class Main {
             // and the ones that must not be
             // uses the guessing grid as it has the valuable information of numbered cells that are adjacent to more
             // than one unknown square
+            // uses the guessing grid to check for all non unknown squares because the numbered cells that can be
+            // guessed on are also the cells that can give information to solve other cells (using a system of
+            // equations)
 
             long testStart = System.nanoTime();
 
             ArrayList<Cell> matrixColumnCells = new ArrayList<Cell>();
             ArrayList<ArrayList<Double>> dynamicMatrix = new ArrayList<ArrayList<Double>>();
             ArrayList<Double> matrixConstants = new ArrayList<Double>();
+
+            ArrayList<int[]> allUnknownCoordinates = new ArrayList<int[]>();
+
+            for (int row = 0; row < rowSize; row++) {
+                for (int column = 0; column < columnSize; column++) {
+                    if (mineGrid[row][column].getValue() == CELL_UNKNOWN) {
+                        allUnknownCoordinates.add(mineGrid[row][column].getCoordinates());
+                    }
+                }
+            }
+            // add in a row with all unknowns equal to total number of mines left
+            // must add in matrix column cells for new unknown coordinates
+            // add 0s to all other rows
 
             int numCellsSurroundedWithUnknowns = 0;
 
@@ -278,6 +316,29 @@ public class Main {
             }
 
             try {
+                if (allUnknownCoordinates.size() <= 20) {
+                    for (int i = 0; i < allUnknownCoordinates.size(); i++) {
+                        int unknownRow = allUnknownCoordinates.get(i)[0];
+                        int unknownColumn = allUnknownCoordinates.get(i)[1];
+
+                        if (!matrixColumnCells.contains(mineGrid[unknownRow][unknownColumn])) {
+                            matrixColumnCells.add(mineGrid[unknownRow][unknownColumn]);
+                            for (int j = 0; j < dynamicMatrix.size(); j++) {
+                                dynamicMatrix.get(j).add(0.0);
+                            }
+                        }
+                    }
+
+                    ArrayList<Double> allCellsEquation = new ArrayList<Double>();
+
+                    for (int i = 0; i < dynamicMatrix.get(0).size(); i++) {
+                        allCellsEquation.add(1.0);
+                    }
+
+                    dynamicMatrix.add(allCellsEquation);
+                    matrixConstants.add((double) (totalMines - screen.getNumFlaggedMines()));
+                }
+
                 double[][] matrix = new double[dynamicMatrix.size()][dynamicMatrix.get(0).size() + 1];
                 for (int row = 0; row < dynamicMatrix.size(); row++) {
                     dynamicMatrix.get(row).add(matrixConstants.get(row));
@@ -302,6 +363,7 @@ public class Main {
 
                 boolean solvedSomething = false;
 
+
                 for (int matrixRow = 0; matrixRow < matrixRREF.getNumRows(); matrixRow++) {
 
                     ArrayList<Integer> simplifiedRow = new ArrayList<Integer>();
@@ -311,7 +373,7 @@ public class Main {
                         if (!(Math.abs(matrixRREF.get(matrixRow, matrixColumn)) < 0.001)) {
                             simplifiedRow.add((int) matrixRREF.get(matrixRow, matrixColumn));
                             if ((int) matrixRREF.get(matrixRow, matrixColumn) == 0) {
-                                System.out.println("The change from double to integer went wrong");
+                                System.out.println("The change from double to integer went wrong!");
                             }
 
                             simplifiedRowCells.add(matrixColumnCells.get(matrixColumn));
@@ -421,11 +483,84 @@ public class Main {
             // of putting the mines on the board and checks if they are valid. If there's only one permutation, then
             // do those moves
 
-            if (screen.getTotalMines() - screen.getNumFlaggedMines() < 5) {
-                Cell[][] testMineGrid = new Cell[rowSize][columnSize];
-                for (int row = 0; row < rowSize; row++) {
-                    Arrays.fill(testMineGrid, mineGrid);
+            // the permutation code is now just there as a test to see if it will find anything in addition to the
+            // new code which just adds another equation to the matrix that uses the total number of mines left
+
+
+            ArrayList<ICombinatoricsVector<Integer>> numPossibleOptions = new ArrayList<ICombinatoricsVector<Integer>>();
+
+            if (allUnknownCoordinates.size() <= 20) {
+                // the number of permutations of a variable number of mines given a constant number of squares is
+                // directly related to the rows in Pascal's triangle, for the given number of squares
+                // the equation relating the number of permutations to Pascal's triangle is:
+                // numPermutations = PascalsTriangle[unknownCoordinates.size()][unknownCoordinates.size() - numMinesLeft];
+
+                int numMinesLeft = screen.getTotalMines() - screen.getNumFlaggedMines();
+
+                Integer[] initialPermutation = new Integer[allUnknownCoordinates.size()];
+
+                Arrays.fill(initialPermutation, 0);
+
+                // each mine is a 1, each empty square is a 0
+
+                try {
+                    for (int i = 0; i < numMinesLeft; i++) {
+                        initialPermutation[i] = 1;
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    // again, if it tries to do this algorithm on an intermediate frame, it will given an exception
+                    // in normal conditions, it will not give an exception because the number of unknown coordinates
+                    // will always be greater than the number of mines left
                 }
+
+
+                ICombinatoricsVector<Integer> initialVector = Factory.createVector(initialPermutation);
+
+                // Create the generator
+                Generator<Integer> generator = Factory.createPermutationGenerator(initialVector);
+
+                List<ICombinatoricsVector<Integer>> permutations = generator.generateAllObjects();
+
+                for (int i = 0; i < permutations.size(); i++){
+                    Cell[][] testMineGrid = new Cell[rowSize][columnSize];
+                    for (int row = 0; row < rowSize; row++) {
+                        for (int column = 0; column < columnSize; column++) {
+                            testMineGrid[row][column] = mineGrid[row][column].copyOf();
+                        }
+                    }
+
+                    for (int j = 0; j < allUnknownCoordinates.size(); j++) {
+                        if (permutations.get(i).getValue(j) == 1) {
+                            int curCellRow = allUnknownCoordinates.get(j)[0];
+                            int curCellColumn = allUnknownCoordinates.get(j)[1];
+
+                            testMineGrid[curCellRow][curCellColumn] = new Cell(CELL_FLAG, curCellRow, curCellColumn);
+                        }
+                    }
+
+                    if (isMineGridPossible(testMineGrid, rowSize, columnSize)) {
+                        numPossibleOptions.add(permutations.get(i));
+                    }
+
+
+
+                }
+
+                if (numPossibleOptions.size() == 1) {
+                    for (int i = 0; i < numPossibleOptions.get(0).getSize(); i++) {
+                        if (numPossibleOptions.get(0).getValue(i) == 0) {
+                            int cellRow = allUnknownCoordinates.get(i)[0];
+                            int cellColumn = allUnknownCoordinates.get(i)[1];
+                            System.out.println("Solved a cell through the permutation algorithm at row: " + cellRow + " and column: " + cellColumn + ". It is not a mine.");
+                            int[] tilePos = screen.getTilePos(cellRow, cellColumn);
+                            screen.robot.mouseMove(tilePos[0], tilePos[1]);
+                            screen.robot.mousePress(InputEvent.BUTTON1_MASK);
+                            Thread.sleep(10);
+                            screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                        }
+                    }
+                }
+
 
 
             }
@@ -514,14 +649,14 @@ public class Main {
             System.out.println("The duration is: " + duration);
 
             return;
-            //implement best guess
-
 
         }
 
 
 
     }
+
+
 
     public static void configureScreen(Screen screen) throws InterruptedException, GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException {
 
@@ -680,6 +815,7 @@ public class Main {
 
 
     public static void main(String[] args) throws InterruptedException {
+        // config file for minesweeper path
 
         Screen screen;
         try {

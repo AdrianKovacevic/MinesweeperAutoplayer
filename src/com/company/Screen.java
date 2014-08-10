@@ -263,17 +263,26 @@ public class Screen {
                     colourFarBelowRGBValues[1] = colourFarBelow.getGreen();
                     colourFarBelowRGBValues[2] = colourFarBelow.getBlue();
 
-                    Color colourFarAbove = new Color(screenShot.getRGB(x + 1, y - 10));
-
-                    int[] colourFarAboveRGBValues = new int[3];
-
-                    colourFarAboveRGBValues[0] = colourFarAbove.getRed();
-                    colourFarAboveRGBValues[1] = colourFarAbove.getGreen();
-                    colourFarAboveRGBValues[2] = colourFarAbove.getBlue();
+//                    Color colourFarAbove = new Color(screenShot.getRGB(x + 1, y - 10));
+//
+//                    int[] colourFarAboveRGBValues = new int[3];
+//
+//                    colourFarAboveRGBValues[0] = colourFarAbove.getRed();
+//                    colourFarAboveRGBValues[1] = colourFarAbove.getGreen();
+//                    colourFarAboveRGBValues[2] = colourFarAbove.getBlue();
 
                     int gameOverPopup = 0;
 
 //                    robot.mouseMove(x, y);
+
+                    Color colourLeft = new Color(screenShot.getRGB(x - 1, y));
+
+                    int[] colourLeftRGBValues = new int[3];
+
+                    colourLeftRGBValues[0] = colourLeft.getRed();
+                    colourLeftRGBValues[1] = colourLeft.getGreen();
+                    colourLeftRGBValues[2] = colourLeft.getBlue();
+
 
                     if (isColourMatch(colourRGBValues, GAMEOVER_COLOUR, 0)) {
 //                        robot.mouseMove(x, y);
@@ -298,7 +307,7 @@ public class Screen {
                     }
 
                     if (!isGameOver) {
-                        if (isColourMatch(colourFarAboveRGBValues, CELL_SEVEN_COLOUR, 30) && colourRGBValues[0] >= 140 && colourRGBValues[1] >= 140 && colourRGBValues[2] >= 180
+                        if (isColourMatch(colourLeftRGBValues, CELL_SEVEN_COLOUR, 30) && colourRGBValues[0] >= 140 && colourRGBValues[1] >= 140 && colourRGBValues[2] >= 140
                                 && colourRightRGBValues[0] >= 140 && colourRightRGBValues[1] >= 140 && colourRightRGBValues[2] >= 180) {
                             seven.add(colourRGBValues[0] + " " + colourRGBValues[1] + " " + colourRGBValues[2]);
                             Cell cell = new Cell(CELL_SEVEN, row, column);
@@ -359,6 +368,7 @@ public class Screen {
 
 
         }
+
 
     }
 

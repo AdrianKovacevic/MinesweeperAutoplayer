@@ -53,5 +53,14 @@ public class Cell {
         numSurroundingFlags = numFlags;
     }
 
+    public Cell copyOf () {
+        Cell copy = new Cell(this.value, this.coordinates[0], this.coordinates[1]);
+        copy.setNumSurroundingFlags(this.numSurroundingFlags);
+        for (int i = 0; i < surroundingUnknownCoordinates.size(); i++) {
+            copy.addSurroundingUnknownCoordinates(surroundingUnknownCoordinates.get(i));
+        }
+        return copy;
+    }
+
 
 }
