@@ -5,9 +5,10 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.win32.W32APIOptions;
 
-import java.awt.AWTException;
-import java.awt.Robot;
-import java.util.Arrays;
+
+/**
+ * @author Hovercraft Full Of Eels from StackExchange
+ */
 
 
 public class GetWindowRect {
@@ -47,22 +48,6 @@ public class GetWindowRect {
     public static class GetWindowRectException extends Exception {
         public GetWindowRectException(String windowName) {
             super("Window Rect not found for " + windowName);
-        }
-    }
-
-    public static void main(String[] args) throws AWTException {
-        String windowName = "Minesweeper";
-        int[] rect;
-        Robot robot = new Robot() ;
-        try {
-            rect = GetWindowRect.getRect(windowName);
-            System.out.printf("The corner locations for the window \"%s\" are %s",
-                    windowName, Arrays.toString(rect));
-            robot.mouseMove(rect[0], rect[1]);
-        } catch (GetWindowRect.WindowNotFoundException e) {
-            e.printStackTrace();
-        } catch (GetWindowRect.GetWindowRectException e) {
-            e.printStackTrace();
         }
     }
 }
