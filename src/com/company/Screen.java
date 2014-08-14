@@ -14,8 +14,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * @author Adrian Kovacevic akovacev@uwaterloo.ca
- * Created by Adrian Kovacevic on June 18, 2014
+ * @author Adrian Kovacevic akovacev@uwaterloo.ca Created by Adrian Kovacevic on June 18, 2014
  */
 
 public class Screen {
@@ -32,17 +31,16 @@ public class Screen {
     private final byte CELL_FLAG = 15;
     private final byte CELL_SIDE_LENGTH = 18;
 
-
-    private final int[] CELL_ONE_COLOUR = {61, 80, 190};
-    private final int[] CELL_TWO_COLOUR = {30, 103, 2};
-    private final int[] CELL_THREE_COLOUR = {170, 12, 12};
-    private final int[] CELL_FOUR_COLOUR = {1, 1, 130};
-    private final int[] CELL_FIVE_COLOUR = {129, 10, 10};
-    private final int[] CELL_SIX_COLOUR = {5, 125, 122};
-    private final int[] CELL_SEVEN_COLOUR = {173, 15, 15};
-    private final int[] CELL_BLANK_COLOUR = {172, 181, 212};
-    private final int[] CELL_FLAG_COLOUR = {161, 159, 162};
-    private final int[] GAMEOVER_COLOUR = {240, 240, 240};
+    private final int[] CELL_ONE_COLOUR = { 61, 80, 190 };
+    private final int[] CELL_TWO_COLOUR = { 30, 103, 2 };
+    private final int[] CELL_THREE_COLOUR = { 170, 12, 12 };
+    private final int[] CELL_FOUR_COLOUR = { 1, 1, 130 };
+    private final int[] CELL_FIVE_COLOUR = { 129, 10, 10 };
+    private final int[] CELL_SIX_COLOUR = { 5, 125, 122 };
+    private final int[] CELL_SEVEN_COLOUR = { 173, 15, 15 };
+    private final int[] CELL_BLANK_COLOUR = { 172, 181, 212 };
+    private final int[] CELL_FLAG_COLOUR = { 161, 159, 162 };
+    private final int[] GAMEOVER_COLOUR = { 240, 240, 240 };
 
     private Cell[][] mineGrid;
 
@@ -77,8 +75,8 @@ public class Screen {
     private final Lock lock = new ReentrantLock();
 
     /**
-     * An object which stores a screenshot of the screen and a 2D array that represents the minesweeper grid, along
-     * with functions that analyze the grid values
+     * An object which stores a screenshot of the screen and a 2D array that represents the minesweeper grid, along with
+     * functions that analyze the grid values
      *
      * @throws AWTException Throws an exception if a new Robot object could not be created
      */
@@ -128,11 +126,11 @@ public class Screen {
         return mineGridTopCornerX;
     }
 
-    public int getMineGridBottomCornerY () {
+    public int getMineGridBottomCornerY() {
         return mineGridBottomCornerY;
     }
 
-    public int getMineGridBottomCornerX () {
+    public int getMineGridBottomCornerX() {
         return mineGridBottomCornerX;
     }
 
@@ -140,18 +138,17 @@ public class Screen {
         return numFlags;
     }
 
-    public int getTotalMines () {
+    public int getTotalMines() {
         return totalMines;
     }
 
-    public byte getRowSize () {
+    public byte getRowSize() {
         return rowSize;
     }
 
-    public byte getColumnSize () {
+    public byte getColumnSize() {
         return columnSize;
     }
-
 
     /**
      * Gets the number of tasks each thread will have to complete
@@ -174,7 +171,6 @@ public class Screen {
         return;
     }
 
-
     /**
      * Inherits from Runnable for each thread to use to complete its task of filling the mineGrid array in parallel.
      * Detects multiple pixels in each cell to be able to determine its value, and puts a cell with the corresponding
@@ -185,8 +181,7 @@ public class Screen {
         private final int termStartIndex;
         private final int numTerms;
 
-
-        MineGridFillThread (int termStartIndex, int numTerms) {
+        MineGridFillThread(int termStartIndex, int numTerms) {
             this.termStartIndex = termStartIndex;
             this.numTerms = numTerms;
         }
@@ -209,7 +204,6 @@ public class Screen {
 
                 int y = mineGridTopCornerY + 17 + (CELL_SIDE_LENGTH * row);
 
-
                 while (column != columnSize && termsLeft != 0) {
 
                     column = column % columnSize;
@@ -226,13 +220,11 @@ public class Screen {
 
                     Color colourAbove = new Color(screenShot.getRGB(x, y - 1));
 
-
                     int[] colourAboveRGBValues = new int[3];
 
                     colourAboveRGBValues[0] = colourAbove.getRed();
                     colourAboveRGBValues[1] = colourAbove.getGreen();
                     colourAboveRGBValues[2] = colourAbove.getBlue();
-
 
                     Color colourRight = new Color(screenShot.getRGB(x + 1, y));
 
@@ -290,22 +282,27 @@ public class Screen {
                         // handled in the doNextMove method by clicking on isolated squares once there are no
                         // moves left)
 
-                        if (isColourMatch(colourLeftRGBValues, CELL_SEVEN_COLOUR, 30) && colourRGBValues[0] >= 140 && colourRGBValues[1] >= 100 && colourRGBValues[2] >= 100
-                                && colourRightRGBValues[0] >= 140 && colourRightRGBValues[1] >= 140 && colourRightRGBValues[2] >= 180) {
+                        if (isColourMatch(colourLeftRGBValues, CELL_SEVEN_COLOUR, 30) && colourRGBValues[0] >= 140
+                                && colourRGBValues[1] >= 100 && colourRGBValues[2] >= 100
+                                && colourRightRGBValues[0] >= 140 && colourRightRGBValues[1] >= 140
+                                && colourRightRGBValues[2] >= 180) {
                             Cell cell = new Cell(CELL_SEVEN, row, column);
                             mineGrid[row][column] = cell;
                         } else if (isColourMatch(colourRightRGBValues, CELL_FOUR_COLOUR, 15)) {
                             Cell cell = new Cell(CELL_FOUR, row, column);
                             mineGrid[row][column] = cell;
-                        } else if (isColourMatch(colourRGBValues, CELL_THREE_COLOUR, 35) || isColourMatch(colourAboveRGBValues, CELL_THREE_COLOUR, 35)) {
+                        } else if (isColourMatch(colourRGBValues, CELL_THREE_COLOUR, 35) || isColourMatch(
+                                colourAboveRGBValues, CELL_THREE_COLOUR, 35)) {
                             Cell cell = new Cell(CELL_THREE, row, column);
                             mineGrid[row][column] = cell;
-                        } else if (Math.abs(colourRGBValues[0] - 62) < 4 && Math.abs(colourRGBValues[1] - 80) < 2 && Math.abs(colourRGBValues[2] - 189) < 2 && colourFarBelowRGBValues[0] >= 150
+                        } else if (Math.abs(colourRGBValues[0] - 62) < 4 && Math.abs(colourRGBValues[1] - 80) < 2
+                                && Math.abs(colourRGBValues[2] - 189) < 2 && colourFarBelowRGBValues[0] >= 150
                                 && colourFarBelowRGBValues[1] >= 150) {
                             Cell cell = new Cell(CELL_ONE, row, column);
                             mineGrid[row][column] = cell;
                         } else if (colourRGBValues[0] <= 230 && colourRGBValues[0] >= 160 && colourRGBValues[1] <= 245
-                                && colourRGBValues[1] >= 170 && colourRGBValues[2] <= 255 && colourRGBValues[2] >= 200) {
+                                && colourRGBValues[1] >= 170 && colourRGBValues[2] <= 255
+                                && colourRGBValues[2] >= 200) {
                             Cell cell = new Cell(CELL_BLANK, row, column);
                             mineGrid[row][column] = cell;
                         } else if (isColourMatch(colourRGBValues, CELL_TWO_COLOUR, 30)) {
@@ -330,7 +327,6 @@ public class Screen {
 
                     column++;
                     termsLeft--;
-
                 }
 
                 if (termsLeft == 0 || isGameOver) {
@@ -339,22 +335,16 @@ public class Screen {
 
                 column = column % columnSize;
             }
-
-
         }
-
-
     }
 
-
-
     /**
-     * Uses the Euclidean distance between 2 colours to tell how similar they are. If it is under a tolerance,
-     * it will return true to signify a match.
+     * Uses the Euclidean distance between 2 colours to tell how similar they are. If it is under a tolerance, it will
+     * return true to signify a match.
      *
-     * @param givenColourRGB The RGB colour array to be tested (index 0 is red, 1 is green, 2 is blue)
+     * @param givenColourRGB    The RGB colour array to be tested (index 0 is red, 1 is green, 2 is blue)
      * @param expectedColourRGB The expected value of the tested colour
-     * @param tolerance The allowed tolerance that the colours can differ by
+     * @param tolerance         The allowed tolerance that the colours can differ by
      * @return Returns true if the Euclidean colour difference is equal or less than the given tolerance, false
      * otherwise.
      */
@@ -365,28 +355,25 @@ public class Screen {
         double greenDifferenceSquared;
         double blueDifferenceSquared;
 
-
         redDifferenceSquared = Math.pow(givenColourRGB[0] - expectedColourRGB[0], 2);
         greenDifferenceSquared = Math.pow(givenColourRGB[1] - expectedColourRGB[1], 2);
         blueDifferenceSquared = Math.pow(givenColourRGB[2] - expectedColourRGB[2], 2);
 
         colourDifferenceResultant = Math.sqrt(redDifferenceSquared + greenDifferenceSquared + blueDifferenceSquared);
 
-        return  (colourDifferenceResultant <= tolerance);
+        return (colourDifferenceResultant <= tolerance);
     }
 
-
-
-
     /**
-     * Finds the corners of the Minesweeper window and the mine grid for the mineGrid array
-     * Calls the getTasksPerThread method as this can only be called after the number of cells is found
+     * Finds the corners of the Minesweeper window and the mine grid for the mineGrid array Calls the getTasksPerThread
+     * method as this can only be called after the number of cells is found
      *
-     * @throws GetWindowRect.GetWindowRectException Throws an exception if the window coordinates cannot be found
+     * @throws GetWindowRect.GetWindowRectException  Throws an exception if the window coordinates cannot be found
      * @throws GetWindowRect.WindowNotFoundException Throws an exception if the window does not exist
      */
 
-    public void findMineGridCorners () throws GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException {
+    public void findMineGridCorners()
+            throws GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException {
         screenShot = null;
         takeScreenshot();
 
@@ -419,14 +406,12 @@ public class Screen {
                 rowSize = 16;
                 columnSize = 30;
                 totalMines = 99;
-
             } else {
                 // intermediate
                 System.out.println("Playing on intermediate.");
                 rowSize = 16;
                 columnSize = 16;
                 totalMines = 40;
-
             }
         } else {
             // beginner
@@ -434,7 +419,6 @@ public class Screen {
             rowSize = 9;
             columnSize = 9;
             totalMines = 10;
-
         }
 
         int numConsecutiveBlackPixels = 0;
@@ -448,12 +432,11 @@ public class Screen {
                 numConsecutiveBlackPixels = 0;
 
                 if (pixel.getRed() <= 10 && pixel.getGreen() <= 10 && pixel.getBlue() <= 10) {
-//                    robot.mouseMove(x, y);
+                    //                    robot.mouseMove(x, y);
                     numConsecutiveBlackPixels++;
                     for (int i = 1; i < 8; i++) {
                         Color pixelBeside = new Color(screenShot.getRGB(x + i, y));
-                        if (pixelBeside.getRed() <= 10 && pixelBeside.getGreen() <= 10 && pixelBeside.getBlue() <= 10
-                                ) {
+                        if (pixelBeside.getRed() <= 10 && pixelBeside.getGreen() <= 10 && pixelBeside.getBlue() <= 10) {
                             numConsecutiveBlackPixels++;
                         }
                     }
@@ -464,41 +447,36 @@ public class Screen {
                     mineGridTopCornerY = y + 33;
                     break;
                 }
-
             }
 
             if (numConsecutiveBlackPixels == 8) {
                 break;
             }
-
         }
 
         // if finding the 8 black pixel row under Game failed, use a pre-determined distance from the corner
         // doesn't always work in different configurations, such as non-aero Windows or Windows 8
         if (numConsecutiveBlackPixels != 8) {
             mineGridTopCornerX = rect[0] + 36;
-            mineGridTopCornerY = rect[1] +  78;
+            mineGridTopCornerY = rect[1] + 78;
         }
 
         mineGrid = new Cell[rowSize][columnSize];
-
 
         mineGridBottomCornerX = rect[2] - 37;
         mineGridBottomCornerY = rect[3] - 40;
 
         getTasksPerThread();
-
-
     }
-
 
     /**
      * Runs the threads in parallel to analyze the screenshot and fill the mine grid array
      *
      * @return Returns true if the game is over (found a game over popup) and false if not
-     * @throws GetWindowRect.GetWindowRectException Throws an exception if the window coordinates cannot be found
+     * @throws GetWindowRect.GetWindowRectException  Throws an exception if the window coordinates cannot be found
      * @throws GetWindowRect.WindowNotFoundException Throws an exception if the window does not exist
-     * @throws InterruptedException Throws an exception in the executor to let the thread know when it has finished
+     * @throws InterruptedException                  Throws an exception in the executor to let the thread know when it
+     *                                               has finished
      */
     public boolean fillMineGrid()
             throws GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException, InterruptedException {
@@ -536,14 +514,12 @@ public class Screen {
         }
 
         return isGameOver;
-
     }
-
 
     /**
      * Returns the coordinates of an area that can be clicked on for a cell at a certain row and column
      *
-     * @param row The row of the cell to be clicked on
+     * @param row    The row of the cell to be clicked on
      * @param column The column of the cell to be clicked on
      * @return Returns screen coordinates in (x, y) format in an integer array of 2 elements of the location of the
      * given cell
@@ -557,7 +533,6 @@ public class Screen {
         return tilePos;
     }
 
-
     /**
      * Takes a screenshot without the cursor in it
      */
@@ -570,5 +545,4 @@ public class Screen {
 
         return;
     }
-
 }

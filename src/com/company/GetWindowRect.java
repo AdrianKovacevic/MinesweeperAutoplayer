@@ -5,11 +5,9 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.win32.W32APIOptions;
 
-
 /**
  * @author Hovercraft Full Of Eels from StackExchange
  */
-
 
 public class GetWindowRect {
 
@@ -21,14 +19,13 @@ public class GetWindowRect {
         int GetWindowRect(WinDef.HWND handle, int[] rect);
     }
 
-    public static int[] getRect(String windowName) throws WindowNotFoundException,
-            GetWindowRectException {
+    public static int[] getRect(String windowName) throws WindowNotFoundException, GetWindowRectException {
         WinDef.HWND hwnd = User32.INSTANCE.FindWindow(null, windowName);
         if (hwnd == null) {
             throw new WindowNotFoundException("", windowName);
         }
 
-        int[] rect = {0, 0, 0, 0};
+        int[] rect = { 0, 0, 0, 0 };
         int result = User32.INSTANCE.GetWindowRect(hwnd, rect);
         if (result == 0) {
             throw new GetWindowRectException(windowName);
@@ -39,8 +36,7 @@ public class GetWindowRect {
     @SuppressWarnings("serial")
     public static class WindowNotFoundException extends Exception {
         public WindowNotFoundException(String className, String windowName) {
-            super(String.format("Window null for className: %s; windowName: %s",
-                    className, windowName));
+            super(String.format("Window null for className: %s; windowName: %s", className, windowName));
         }
     }
 

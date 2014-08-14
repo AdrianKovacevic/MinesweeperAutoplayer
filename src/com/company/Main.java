@@ -1,6 +1,5 @@
 package com.company;
 
-
 import com.google.common.primitives.Doubles;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
@@ -19,20 +18,18 @@ import java.awt.event.KeyEvent;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Properties;
-import java.util.Random;
 import java.util.List;
+import java.util.Random;
+import java.util.Properties;
 
 
 /**
- * @author Adrian Kovacevic akovacev@uwaterloo.ca
- * Created by Adrian Kovacevic on June 17, 2014
- * Created in IntelliJ IDEA
+ * @author Adrian Kovacevic akovacev@uwaterloo.ca Created by Adrian Kovacevic on June 17, 2014 Created in IntelliJ IDEA
  */
 
 public class Main {
@@ -48,16 +45,15 @@ public class Main {
     static final byte CELL_BLANK = 11;
     static final byte CELL_FLAG = 15;
 
-
     /**
      * Goes to all adjacent cells in the array to see how many flags and unknown cells there are
      *
      * @param mineGrid The grid on which a cell is checked for its surrounding flags and unknown cells
-     * @param row The row that the cell resides on
-     * @param column The column that the cell resides on
+     * @param row      The row that the cell resides on
+     * @param column   The column that the cell resides on
      */
 
-    private static void findNumSurroundingFlagsAndUnkown (Cell[][] mineGrid, int row, int column) {
+    private static void findNumSurroundingFlagsAndUnkown(Cell[][] mineGrid, int row, int column) {
         int numFlags = 0;
         mineGrid[row][column].clearSurroundingUnknownCoordinates();
 
@@ -83,11 +79,9 @@ public class Main {
         return;
     }
 
-
-
     /**
-     * Checks to see if the mine grid is solved, used as a helper function for the algorithm that tries all
-     * permutations of leftover mines in the available squares
+     * Checks to see if the mine grid is solved, used as a helper function for the algorithm that tries all permutations
+     * of leftover mines in the available squares
      *
      * @param testMineGrid The mine grid that is being checked if it is valid
      * @return Returns true if the mine grid does not break any rules of Minesweeper, and false if it does
@@ -99,10 +93,13 @@ public class Main {
 
         for (int row = 0; row < rowSize; row++) {
             for (int column = 0; column < columnSize; column++) {
-                if (testMineGrid[row][column].getValue() != CELL_UNKNOWN && testMineGrid[row][column].getValue() != CELL_BLANK && testMineGrid[row][column].getValue() != CELL_FLAG) {
+                if (testMineGrid[row][column].getValue() != CELL_UNKNOWN
+                        && testMineGrid[row][column].getValue() != CELL_BLANK
+                        && testMineGrid[row][column].getValue() != CELL_FLAG) {
                     findNumSurroundingFlagsAndUnkown(testMineGrid, row, column);
 
-                    if (testMineGrid[row][column].getValue() - testMineGrid[row][column].getNumSurroundingFlags() != 0) {
+                    if (testMineGrid[row][column].getValue() - testMineGrid[row][column].getNumSurroundingFlags()
+                            != 0) {
                         return false;
                     }
                 }
@@ -119,14 +116,14 @@ public class Main {
      *
      * @param screen Passes in the screen object that contains a screenshot and a 2D array of Cell objects that
      *               represent the minesweeper grid
-     * @throws InterruptedException Throws an exception in the executor in the screen object, to let the thread know
-     * when it has finished
-     * @throws GetWindowRect.GetWindowRectException Throws an exception if the window coordinates cannot be found
+     * @throws InterruptedException                  Throws an exception in the executor in the screen object, to let
+     *                                               the thread know when it has finished
+     * @throws GetWindowRect.GetWindowRectException  Throws an exception if the window coordinates cannot be found
      * @throws GetWindowRect.WindowNotFoundException Throws an exception if the window does not exist
      */
 
-
-    private static void doNextMove (Screen screen) throws InterruptedException, GetWindowRect.GetWindowRectException, GetWindowRect.WindowNotFoundException {
+    private static void doNextMove(Screen screen)
+            throws InterruptedException, GetWindowRect.GetWindowRectException, GetWindowRect.WindowNotFoundException {
 
         int totalMines = screen.getTotalMines();
         byte rowSize = screen.getRowSize();
@@ -138,19 +135,17 @@ public class Main {
             Arrays.fill(guessingGrid[i], -1.0);
         }
 
-
         boolean isEmpty = true;
         boolean gameOver;
-//        long startTime = System.nanoTime();
+        //        long startTime = System.nanoTime();
 
         gameOver = screen.fillMineGrid();
 
-//        long endTime = System.nanoTime();
-//        double duration = (endTime - startTime) / 1000000000.0;
-//        System.out.println("The mineGrid filling duration is: " + duration);
+        //        long endTime = System.nanoTime();
+        //        double duration = (endTime - startTime) / 1000000000.0;
+        //        System.out.println("The mineGrid filling duration is: " + duration);
 
-//        startTime = System.nanoTime();
-
+        //        startTime = System.nanoTime();
 
         if (gameOver) {
             System.out.println("Game over!");
@@ -181,7 +176,6 @@ public class Main {
             }
         }
 
-
         for (int y = 0; y < rowSize; y++) {
             for (int x = 0; x < columnSize; x++) {
                 if (mineGrid[y][x].getValue() != CELL_UNKNOWN) {
@@ -193,8 +187,12 @@ public class Main {
         if (isEmpty) {
             Random rand = new Random();
             // clicks a random cell, but does not touch the edges as they are usually bad to start off with
-            int randomX = rand.nextInt(((screen.getMineGridBottomCornerX() - 40) - (screen.getMineGridTopCornerX()) + 40)) + (screen.getMineGridTopCornerX() + 40);
-            int randomY = rand.nextInt(((screen.getMineGridBottomCornerY() - 40) - (screen.getMineGridTopCornerY()) + 40)) + (screen.getMineGridTopCornerY() + 40);
+            int randomX =
+                    rand.nextInt(((screen.getMineGridBottomCornerX() - 40) - (screen.getMineGridTopCornerX()) + 40)) + (
+                            screen.getMineGridTopCornerX() + 40);
+            int randomY =
+                    rand.nextInt(((screen.getMineGridBottomCornerY() - 40) - (screen.getMineGridTopCornerY()) + 40)) + (
+                            screen.getMineGridTopCornerY() + 40);
 
             screen.robot.mouseMove(randomX, randomY);
             screen.robot.mousePress(InputEvent.BUTTON1_MASK);
@@ -206,7 +204,6 @@ public class Main {
             return;
         } else {
 
-
             // this first pair of loops checks all cells for guaranteed moves, and keeps track of any possible guesses
             // the next loop checks for the cell with the least number of guesses, and performs the guesses on it
             for (int row = 0; row < rowSize; row++) {
@@ -214,18 +211,19 @@ public class Main {
                     // iterates through the grid to click all unknown cells if all mines have been flagged
                     // otherwise, it goes to a numbered cell and counts the adjacent flags and unknown cells
 
-
                     if (screen.getNumFlaggedMines() == totalMines && mineGrid[row][column].getValue() == CELL_UNKNOWN) {
                         int[] tilePos = screen.getTilePos(row, column);
                         screen.robot.mouseMove(tilePos[0], tilePos[1]);
                         screen.robot.mousePress(InputEvent.BUTTON1_MASK);
                         Thread.sleep(10);
                         screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-//                        endTime = System.nanoTime();
-//                        duration = (endTime - startTime) / 1000000000.0;
-//                        System.out.println("The duration is: " + duration);
+                        //                        endTime = System.nanoTime();
+                        //                        duration = (endTime - startTime) / 1000000000.0;
+                        //                        System.out.println("The duration is: " + duration);
                         return;
-                    } else if (mineGrid[row][column].getValue() != CELL_UNKNOWN && mineGrid[row][column].getValue() != CELL_BLANK && mineGrid[row][column].getValue() != CELL_FLAG) {
+                    } else if (mineGrid[row][column].getValue() != CELL_UNKNOWN
+                            && mineGrid[row][column].getValue() != CELL_BLANK
+                            && mineGrid[row][column].getValue() != CELL_FLAG) {
 
                         // goes to all adjacent cells in the array to see how many flags and unknown cells there are
 
@@ -239,22 +237,28 @@ public class Main {
 
                         if (mineGrid[row][column].getValue() == numFlags && numUnknown != 0) {
                             // expand the tile since possible
-                            System.out.println("Expanding around a " + mineGrid[row][column].getValue() + " at row " + row + " and column " + column + ". Numflags: " + numFlags + ". " + "Numunknowns: " + numUnknown);
+                            System.out.println(
+                                    "Expanding around a " + mineGrid[row][column].getValue() + " at row " + row
+                                            + " and column " + column + ". Numflags: " + numFlags + ". "
+                                            + "Numunknowns: " + numUnknown);
 
                             int[] tilePos = screen.getTilePos(row, column);
                             screen.robot.mouseMove(tilePos[0], tilePos[1]);
                             screen.robot.mousePress(InputEvent.BUTTON2_MASK);
                             Thread.sleep(10);
                             screen.robot.mouseRelease(InputEvent.BUTTON2_MASK);
-//                            endTime = System.nanoTime();
-//                            duration = (endTime - startTime) / 1000000000.0;
-//                            System.out.println("The duration is: " + duration);
+                            //                            endTime = System.nanoTime();
+                            //                            duration = (endTime - startTime) / 1000000000.0;
+                            //                            System.out.println("The duration is: " + duration);
                             return;
 
-                        // otherwise, if not all of the number's adjacent cells have been flagged, but there are
-                        // the same number of unknown cells as leftover mines, then it flags all of the unknown cells
+                            // otherwise, if not all of the number's adjacent cells have been flagged, but there are
+                            // the same number of unknown cells as leftover mines, then it flags all of the unknown cells
                         } else if (mineGrid[row][column].getValue() - numFlags == numUnknown && numUnknown != 0) {
-                            System.out.println("Flagging around a " + mineGrid[row][column].getValue() + " at row " + row + " and column " + column + ". Numflags: " + numFlags + ". " + "Numunknowns: " + numUnknown);
+                            System.out.println(
+                                    "Flagging around a " + mineGrid[row][column].getValue() + " at row " + row
+                                            + " and column " + column + ". Numflags: " + numFlags + ". "
+                                            + "Numunknowns: " + numUnknown);
 
                             // mark all surrounding tiles with flags
                             for (int i = -1; i < 2; i++) {
@@ -271,24 +275,25 @@ public class Main {
                                             screen.robot.mouseRelease(InputEvent.BUTTON3_MASK);
                                         }
                                     }
-
-
                                 }
                             }
 
-                            screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
-//                            endTime = System.nanoTime();
-//                            duration = (endTime - startTime) / 1000000000.0;
-//                            System.out.println("The duration is: " + duration);
+                            screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10,
+                                    screen.getMineGridTopCornerY() - 10);
+                            //                            endTime = System.nanoTime();
+                            //                            duration = (endTime - startTime) / 1000000000.0;
+                            //                            System.out.println("The duration is: " + duration);
                             return;
 
-                        // if it can not expand a cell or flag it using the information that is given, then it
-                        // must take a guess. here it will compute how many guesses are necessary around the cell
+                            // if it can not expand a cell or flag it using the information that is given, then it
+                            // must take a guess. here it will compute how many guesses are necessary around the cell
 
                         } else if (mineGrid[row][column].getValue() < numFlags) {
                             // made a mistake, unflag everything
 
-                            System.out.println("Made a mistake. Unflagging around a " + mineGrid[row][column].getValue() + " at row " + row + " and column " + column + ". Numflags: " + numFlags + ". " + "Numunknowns: " + numUnknown);
+                            System.out.println("Made a mistake. Unflagging around a " + mineGrid[row][column].getValue()
+                                    + " at row " + row + " and column " + column + ". Numflags: " + numFlags + ". "
+                                    + "Numunknowns: " + numUnknown);
 
                             for (int i = -1; i < 2; i++) {
                                 for (int j = -1; j < 2; j++) {
@@ -304,16 +309,15 @@ public class Main {
                                             screen.robot.mouseRelease(InputEvent.BUTTON3_MASK);
                                         }
                                     }
-
                                 }
                             }
 
-                            screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
-//                            endTime = System.nanoTime();
-//                            duration = (endTime - startTime) / 1000000000.0;
-//                            System.out.println("The duration is: " + duration);
+                            screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10,
+                                    screen.getMineGridTopCornerY() - 10);
+                            //                            endTime = System.nanoTime();
+                            //                            duration = (endTime - startTime) / 1000000000.0;
+                            //                            System.out.println("The duration is: " + duration);
                             return;
-
                         } else if (numUnknown != 0) {
                             int numMines = mineGrid[row][column].getValue() - numFlags;
                             double chanceOfCorrectGuess = 1.0 - ((double) numMines / (double) numUnknown);
@@ -375,17 +379,16 @@ public class Main {
                                 }
                             }
 
-                            int indexOfCurrentUnknownCell = matrixColumnCells.indexOf(mineGrid[unknownRow][unknownColumn]);
+                            int indexOfCurrentUnknownCell =
+                                    matrixColumnCells.indexOf(mineGrid[unknownRow][unknownColumn]);
                             dynamicMatrix.get(numCellsSurroundedWithUnknowns).set(indexOfCurrentUnknownCell, 1.0);
-
                         }
 
-                        matrixConstants.add((double) (mineGrid[row][column].getValue() - mineGrid[row][column].getNumSurroundingFlags()));
+                        matrixConstants.add((double) (mineGrid[row][column].getValue() - mineGrid[row][column]
+                                .getNumSurroundingFlags()));
 
                         numCellsSurroundedWithUnknowns++;
-
                     }
-
                 }
             }
 
@@ -421,17 +424,18 @@ public class Main {
 
                 DenseMatrix64F matrixRREF = CommonOps.rref(new DenseMatrix64F(matrix), -1, null);
 
-//                matrixRREF.print();
-//
-//                for (int i = 0; i < matrixColumnCells.size(); i++) {
-//                    System.out.print(matrixColumnCells.get(i).getCoordinates()[0] + " " + matrixColumnCells.get(i).getCoordinates()[1] + " ");
-//                }
-//                System.out.print("\n");
+                //                matrixRREF.print();
+                //
+                //                for (int i = 0; i < matrixColumnCells.size(); i++) {
+                //                    System.out.print(matrixColumnCells.get(i).getCoordinates()[0] + " " + matrixColumnCells.get(i).getCoordinates()[1] + " ");
+                //                }
+                //                System.out.print("\n");
 
-                System.out.println("Matrix creation and reduction took: " + (double) (System.nanoTime() - testStart) / 1000000000.0 + " seconds.");
+                System.out.println(
+                        "Matrix creation and reduction took: " + (double) (System.nanoTime() - testStart) / 1000000000.0
+                                + " seconds.");
 
                 Thread.sleep(1);
-
 
                 // apply moves to possible solutions
 
@@ -446,12 +450,10 @@ public class Main {
                         if (!(Math.abs(matrixRREF.get(matrixRow, matrixColumn)) < 0.001)) {
                             simplifiedRow.add((int) matrixRREF.get(matrixRow, matrixColumn));
                             if ((int) matrixRREF.get(matrixRow, matrixColumn) == 0) {
-                                throw new RuntimeException ("The change from double to integer went wrong!");
+                                throw new RuntimeException("The change from double to integer went wrong!");
                             }
 
-
                             simplifiedRowCells.add(matrixColumnCells.get(matrixColumn));
-
                         }
                     }
 
@@ -472,9 +474,8 @@ public class Main {
                         // binary with an integer to binary function and multiply each column by its corresponding
                         // coefficient to correct the sign
 
-
                         for (int column = 0; column < simplifiedRow.size(); column++) {
-                            for (int row = 0; row < numPermutations;) {
+                            for (int row = 0; row < numPermutations; ) {
                                 for (int i = 0; i < consecutiveEquivalentDigits; i++) {
                                     equationPermutations[row][column] = simplifiedRow.get(column);
                                     row++;
@@ -486,7 +487,6 @@ public class Main {
                             }
                             consecutiveEquivalentDigits /= 2;
                         }
-
 
                         ArrayList<int[]> solvedRow = new ArrayList<int[]>();
 
@@ -510,27 +510,29 @@ public class Main {
                                     Cell solvedCell = simplifiedRowCells.get(column);
                                     int cellRow = solvedCell.getCoordinates()[0];
                                     int cellColumn = solvedCell.getCoordinates()[1];
-                                    System.out.println("Solved a cell at row: " + cellRow + " and column: " + cellColumn + ". It is not a mine.");
+                                    System.out.println("Solved a cell at row: " + cellRow + " and column: " + cellColumn
+                                            + ". It is not a mine.");
                                     int[] tilePos = screen.getTilePos(cellRow, cellColumn);
                                     screen.robot.mouseMove(tilePos[0], tilePos[1]);
                                     screen.robot.mousePress(InputEvent.BUTTON1_MASK);
                                     Thread.sleep(10);
                                     screen.robot.mouseRelease(InputEvent.BUTTON1_MASK);
 
-                                // flag the cells with mines
+                                    // flag the cells with mines
                                 } else {
                                     Cell solvedCell = simplifiedRowCells.get(column);
                                     int cellRow = solvedCell.getCoordinates()[0];
                                     int cellColumn = solvedCell.getCoordinates()[1];
-                                    System.out.println("Solved a cell at row: " + cellRow + " and column: " + cellColumn + ". It is a mine.");
+                                    System.out.println("Solved a cell at row: " + cellRow + " and column: " + cellColumn
+                                            + ". It is a mine.");
                                     int[] tilePos = screen.getTilePos(cellRow, cellColumn);
                                     screen.robot.mouseMove(tilePos[0], tilePos[1]);
                                     screen.robot.mousePress(InputEvent.BUTTON3_MASK);
                                     Thread.sleep(10);
                                     screen.robot.mouseRelease(InputEvent.BUTTON3_MASK);
-                                    screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
+                                    screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10,
+                                            screen.getMineGridTopCornerY() - 10);
                                     Thread.sleep(10);
-
                                 }
                             }
                         }
@@ -540,10 +542,6 @@ public class Main {
                 if (solvedSomething) {
                     return;
                 }
-
-
-
-
 
                 // possibly reduce all of the data type transformations to improve speed
             } catch (IndexOutOfBoundsException e) {
@@ -555,8 +553,6 @@ public class Main {
                 throw e;
             }
 
-
-
             // put a function that only activates during low numbers of mines left, and goes through each permutation
             // of putting the mines on the board and checks if they are valid. If there's only one permutation, then
             // do those moves
@@ -564,8 +560,8 @@ public class Main {
             // the permutation code is now just there as a test to see if it will find anything in addition to the
             // new code which just adds another equation to the matrix that uses the total number of mines left
 
-
-            ArrayList<ICombinatoricsVector<Integer>> numPossibleOptions = new ArrayList<ICombinatoricsVector<Integer>>();
+            ArrayList<ICombinatoricsVector<Integer>> numPossibleOptions =
+                    new ArrayList<ICombinatoricsVector<Integer>>();
 
             if (allUnknownCoordinates.size() <= 20) {
                 // the number of permutations of a variable number of mines given a constant number of squares is
@@ -591,7 +587,6 @@ public class Main {
                     // will always be greater than the number of mines left
                 }
 
-
                 ICombinatoricsVector<Integer> initialVector = Factory.createVector(initialPermutation);
 
                 // Create the generator
@@ -599,7 +594,7 @@ public class Main {
 
                 List<ICombinatoricsVector<Integer>> permutations = generator.generateAllObjects();
 
-                for (int i = 0; i < permutations.size(); i++){
+                for (int i = 0; i < permutations.size(); i++) {
                     Cell[][] testMineGrid = new Cell[rowSize][columnSize];
                     for (int row = 0; row < rowSize; row++) {
                         for (int column = 0; column < columnSize; column++) {
@@ -619,9 +614,6 @@ public class Main {
                     if (isMineGridPossible(testMineGrid)) {
                         numPossibleOptions.add(permutations.get(i));
                     }
-
-
-
                 }
 
                 if (numPossibleOptions.size() == 1) {
@@ -629,7 +621,8 @@ public class Main {
                         if (numPossibleOptions.get(0).getValue(i) == 0) {
                             int cellRow = allUnknownCoordinates.get(i)[0];
                             int cellColumn = allUnknownCoordinates.get(i)[1];
-                            System.out.println("Solved a cell through the permutation algorithm at row: " + cellRow + " and column: " + cellColumn + ". It is not a mine.");
+                            System.out.println("Solved a cell through the permutation algorithm at row: " + cellRow
+                                    + " and column: " + cellColumn + ". It is not a mine.");
                             int[] tilePos = screen.getTilePos(cellRow, cellColumn);
                             screen.robot.mouseMove(tilePos[0], tilePos[1]);
                             screen.robot.mousePress(InputEvent.BUTTON1_MASK);
@@ -638,18 +631,12 @@ public class Main {
                         }
                     }
                 }
-
-
-
             }
-
-
 
             // iterate through the guessing chances for each number that is not able to be expanded, look for the
             // highest probability equal or less than 50%, and guess once on it. return, and check to see if anything
             // new opened up that does not have to be guessedp
             // 50% or less prevents guessing on something like a 1 with 8 empty cells around it'
-
 
             int[] highestGuessingChanceCell = new int[2];
             double highestGuessingChance = -0.5;
@@ -690,8 +677,10 @@ public class Main {
                 guessColumn = highestGuessingChanceCell[1];
             }
 
-            System.out.println("Making a guess around a " + mineGrid[guessRow][guessColumn].getValue() + " at row " + guessRow + " and column " +
-                    guessColumn + ". The chance of guessing correctly is: " + guessingGrid[guessRow][guessColumn] * 100.0 + "%.");
+            System.out.println(
+                    "Making a guess around a " + mineGrid[guessRow][guessColumn].getValue() + " at row " + guessRow
+                            + " and column " + guessColumn + ". The chance of guessing correctly is: "
+                            + guessingGrid[guessRow][guessColumn] * 100.0 + "%.");
 
             for (int i = -1; i < 2; i++) {
                 for (int j = -1; j < 2; j++) {
@@ -713,41 +702,37 @@ public class Main {
                             return;
                         }
                     }
-
                 }
             }
 
-//            endTime = System.nanoTime();
-//            duration = (endTime - startTime) / 1000000000.0;
-//            System.out.println("The duration is: " + duration);
+            //            endTime = System.nanoTime();
+            //            duration = (endTime - startTime) / 1000000000.0;
+            //            System.out.println("The duration is: " + duration);
 
             return;
-
         }
-
-
-
     }
 
     /**
      * A method that starts Minesweeper, re-sizes it as small as possible, moves it away from the edge of the screen to
      * prevent clipping of the popups, un-checks potentially disruptive options, and changes the grid colour to blue
      *
-     *
-     * @param screen Passes in the screen object that contains a screenshot and a 2D array of Cell objects that
-     *               represent the minesweeper grid
+     * @param screen              Passes in the screen object that contains a screenshot and a 2D array of Cell objects
+     *                            that represent the minesweeper grid
      * @param minesweeperLocation Passes in the path to MineSweeper.exe as it is read from MinesweeperAP.properties
-     * @throws InterruptedException Throws an exception in the executor in the screen object, to let the thread know
-     * when it has finished
-     * @throws GetWindowRect.GetWindowRectException Throws an exception if the window coordinates cannot be found
+     * @throws InterruptedException                  Throws an exception in the executor in the screen object, to let
+     *                                               the thread know when it has finished
+     * @throws GetWindowRect.GetWindowRectException  Throws an exception if the window coordinates cannot be found
      * @throws GetWindowRect.WindowNotFoundException Throws an exception if the window does not exist
      */
 
-    public static void configureScreen(Screen screen, String minesweeperLocation) throws InterruptedException, GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException {
+    public static void configureScreen(Screen screen, String minesweeperLocation)
+            throws InterruptedException, GetWindowRect.WindowNotFoundException, GetWindowRect.GetWindowRectException {
 
         // runs minesweeper
         try {
-            if (minesweeperLocation.charAt(0) == '\"' && minesweeperLocation.charAt(minesweeperLocation.length() - 1) == '\"') {
+            if (minesweeperLocation.charAt(0) == '\"'
+                    && minesweeperLocation.charAt(minesweeperLocation.length() - 1) == '\"') {
                 Runtime.getRuntime().exec("cmd.exe /C Start \"\" " + minesweeperLocation);
             } else {
                 Runtime.getRuntime().exec("cmd.exe /C Start \"\" \"" + minesweeperLocation + "\"");
@@ -762,9 +747,6 @@ public class Main {
         // add support for other difficulties
         // add better window tracking capabilities across Windows 8 and non-aero versions of the game
         // add multithreading
-
-
-
 
         Thread.sleep(1500);
 
@@ -841,8 +823,6 @@ public class Main {
             return;
         }
 
-
-
         Thread.sleep(500);
 
         // checks the checkboxes if they are not unchecked (better colour detection to see if not checked rather than if
@@ -915,11 +895,9 @@ public class Main {
             e.printStackTrace();
             throw e;
         }
-
-
     }
 
-    private static Properties setDefaultProperties () {
+    private static Properties setDefaultProperties() {
         Properties properties = new Properties();
         OutputStream output = null;
 
@@ -927,11 +905,11 @@ public class Main {
 
             output = new FileOutputStream("MinesweeperAP.properties");
 
-            properties.setProperty("minesweeper_location", "\"%programfiles%\\Microsoft Games\\Minesweeper\\minesweeper.exe\"");
+            properties.setProperty("minesweeper_location",
+                    "\"%programfiles%\\Microsoft Games\\Minesweeper\\minesweeper.exe\"");
             properties.setProperty("delay_between_moves(ms)", "50");
 
             properties.store(output, null);
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -942,13 +920,10 @@ public class Main {
                     e.printStackTrace();
                 }
             }
-
         }
 
         return properties;
     }
-
-
 
     /**
      * The main method, which creates a screen object, configures the Minesweeper window, and repeatedly performs the
@@ -956,22 +931,20 @@ public class Main {
      *
      * @param args Should be no arguments
      * @throws InterruptedException Throws an exception in the executor in the screen object, to let the thread know
-     * when it has finished
+     *                              when it has finished
      */
 
     public static void main(String[] args) throws InterruptedException {
         InputStream input = null;
         Properties properties;
 
-        System.out.println("Press CTRL + ALT + D to end the program at any time as it is performing the Minesweeper moves.");
+        System.out.println(
+                "Press CTRL + ALT + D to end the program at any time as it is performing the Minesweeper moves.");
 
         try {
-
             input = new FileInputStream("MinesweeperAP.properties");
-
             properties = new Properties();
             properties.load(input);
-
         } catch (FileNotFoundException e) {
             System.err.println("No properties file found. Creating a default one.");
             properties = setDefaultProperties();
@@ -1008,8 +981,7 @@ public class Main {
 
         try {
             GlobalScreen.registerNativeHook();
-        }
-        catch (NativeHookException e) {
+        } catch (NativeHookException e) {
             e.printStackTrace();
         }
 
@@ -1020,7 +992,8 @@ public class Main {
 
                 WinDef.HWND hwnd = User32.INSTANCE.FindWindow(null, "Minesweeper"); // window title
                 if (hwnd == null) {
-                    System.err.println("Minesweeper is not running! Make sure that the path is correct and that all backslahses in the properties file are double backslashes.");
+                    System.err.println(
+                            "Minesweeper is not running! Make sure that the path is correct and that all single backslahses in the properties file are double backslashes.");
                     return;
                 } else {
                     // makes sure it is not minimized
@@ -1032,6 +1005,7 @@ public class Main {
                 // the moves will be slower but will be less prone to doing moves before something like the game over
                 // popup appears or a flag/numbered cell is rendered. The lower the delay, the faster the moves will
                 // be performed
+
                 Thread.sleep(Long.parseLong(properties.getProperty("delay_between_moves(ms)")));
             }
         } catch (RuntimeException e) {

@@ -5,17 +5,15 @@ import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
 /**
- * @author Adrian Kovacevic akovacev@uwaterloo.ca
- * Created by Adrian Kovacevic on August 14, 2014
+ * @author Adrian Kovacevic akovacev@uwaterloo.ca Created by Adrian Kovacevic on August 14, 2014
  */
 
-
 public class GlobalKeyListener implements NativeKeyListener {
-    boolean [] currentPressedKeys = new boolean[3];
+    boolean[] currentPressedKeys = new boolean[3];
 
     /**
-     * Un-registers the hook when CTRL ALT and D are pressed at the same time, allowing the loop in Main to close due
-     * to this
+     * Un-registers the hook when CTRL ALT and D are pressed at the same time, allowing the loop in Main to close due to
+     * this
      *
      * @param e The key that has triggered an event
      */
@@ -39,7 +37,6 @@ public class GlobalKeyListener implements NativeKeyListener {
                 GlobalScreen.unregisterNativeHook();
             }
         }
-
     }
 
     @Override
@@ -51,10 +48,8 @@ public class GlobalKeyListener implements NativeKeyListener {
         } else if (e.getKeyCode() == NativeKeyEvent.VK_ALT) {
             currentPressedKeys[2] = false;
         }
-
     }
 
     @Override
     public void nativeKeyTyped(NativeKeyEvent e) {}
-
 }
