@@ -14,7 +14,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * @author Adrian Kovacevic akovacev@uwaterloo.ca Created by Adrian Kovacevic on June 18, 2014
+ * @author Adrian Kovacevic akovacev@uwaterloo.ca
+ * Created by Adrian Kovacevic on June 18, 2014
  */
 
 public class Screen {

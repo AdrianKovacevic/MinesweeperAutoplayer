@@ -3,7 +3,8 @@ package com.company;
 import java.util.ArrayList;
 
 /**
- * @author Adrian Kovacevic akovacev@uwaterloo.ca Created by Adrian Kovacevic on August 7, 2014
+ * @author Adrian Kovacevic akovacev@uwaterloo.ca
+ * Created by Adrian Kovacevic on August 7, 2014
  */
 
 public class Cell {

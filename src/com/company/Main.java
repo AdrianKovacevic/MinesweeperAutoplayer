@@ -29,7 +29,8 @@ import java.util.Properties;
 
 
 /**
- * @author Adrian Kovacevic akovacev@uwaterloo.ca Created by Adrian Kovacevic on June 17, 2014 Created in IntelliJ IDEA
+ * @author Adrian Kovacevic akovacev@uwaterloo.ca
+ * Created by Adrian Kovacevic on June 17, 2014 Created in IntelliJ IDEA
  */
 
 public class Main {
