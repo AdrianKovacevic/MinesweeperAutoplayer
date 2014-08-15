@@ -110,6 +110,52 @@ public class Main {
         return true;
     }
 
+    private static void fixIncorrectFlags (Screen screen) throws InterruptedException {
+        Cell[][] mineGrid = screen.getMineGrid();
+        int rowSize = mineGrid.length;
+        int columnSize = mineGrid[0].length;
+
+        for (int row = 0; row < rowSize; row++) {
+            for (int column = 0; column < columnSize; column++) {
+
+                if (mineGrid[row][column].getValue() != CELL_UNKNOWN && mineGrid[row][column].getValue() != CELL_FLAG && mineGrid[row][column].getValue() != CELL_BLANK) {
+                    findNumSurroundingFlagsAndUnkown(mineGrid, row, column);
+                    if (mineGrid[row][column].getValue() < mineGrid[row][column].getNumSurroundingFlags()) {
+                        // made a mistake, unflag everything
+
+                        System.out.println(
+                                "Made a mistake. Unflagging around a " + mineGrid[row][column].getValue() + " at row " + row
+                                        + " and column " + column + ". Numflags: " +
+                                        mineGrid[row][column].getNumSurroundingFlags() + ". " + "Numunknowns: "
+                                        + mineGrid[row][column].getNumSurroundingUnknown());
+
+                        for (int i = -1; i < 2; i++) {
+                            for (int j = -1; j < 2; j++) {
+                                int testCol = j + column;
+                                int testRow = i + row;
+
+                                if (testRow >= 0 && testRow < rowSize && testCol >= 0 && testCol < columnSize) {
+                                    if (mineGrid[testRow][testCol].getValue() == CELL_FLAG) {
+                                        int[] tilePos = screen.getTilePos(testRow, testCol);
+                                        screen.robot.mouseMove(tilePos[0], tilePos[1]);
+                                        screen.robot.mousePress(InputEvent.BUTTON3_MASK);
+                                        Thread.sleep(10);
+                                        screen.robot.mouseRelease(InputEvent.BUTTON3_MASK);
+                                    }
+                                }
+                            }
+                        }
+
+                        screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
+                    }
+                }
+
+
+            }
+        }
+    }
+
+
     /**
      * Performs the next move, whether it is starting off the game, restarting the game if the game over popup appeared,
      * making a guaranteed move by process of elimination, solving a system of equations to either click or flag mines,
@@ -151,13 +197,17 @@ public class Main {
         if (gameOver) {
             System.out.println("Game over!");
             screen.robot.mouseMove(20, 20);
-            screen.robot.keyPress(KeyEvent.VK_ALT);
+//            screen.robot.keyPress(KeyEvent.VK_ALT);
+//            Thread.sleep(50);
+//            screen.robot.keyPress(KeyEvent.VK_P);
+//            Thread.sleep(50);
+//            screen.robot.keyRelease(KeyEvent.VK_P);
+//            Thread.sleep(50);
+//            screen.robot.keyRelease(KeyEvent.VK_ALT);
+
+            screen.robot.keyPress(KeyEvent.VK_ENTER);
             Thread.sleep(50);
-            screen.robot.keyPress(KeyEvent.VK_P);
-            Thread.sleep(50);
-            screen.robot.keyRelease(KeyEvent.VK_P);
-            Thread.sleep(50);
-            screen.robot.keyRelease(KeyEvent.VK_ALT);
+            screen.robot.keyRelease(KeyEvent.VK_ENTER);
             Thread.sleep(1000);
             return;
         }
@@ -204,6 +254,14 @@ public class Main {
             Thread.sleep(100);
             return;
         } else {
+
+            // when timed, this function is relatively inexpensive, taking less than 0.1 ms if called and nothing
+            // has to be fixed. Also, it is better than the alternative of adding an else if to the following
+            // for loops, as it checks for errors on the entire screen before committing to a move, whereas adding an
+            // else if would only fix cells up until a certain point, allowing for errors
+            // Although not necessary, the speed causes the program to be a bit unstable at times so fixing errors
+            // can improve the reliability in the long run
+            fixIncorrectFlags(screen);
 
             // this first pair of loops checks all cells for guaranteed moves, and keeps track of any possible guesses
             // the next loop checks for the cell with the least number of guesses, and performs the guesses on it
@@ -289,36 +347,6 @@ public class Main {
                             // if it can not expand a cell or flag it using the information that is given, then it
                             // must take a guess. here it will compute how many guesses are necessary around the cell
 
-                        } else if (mineGrid[row][column].getValue() < numFlags) {
-                            // made a mistake, unflag everything
-
-                            System.out.println("Made a mistake. Unflagging around a " + mineGrid[row][column].getValue()
-                                    + " at row " + row + " and column " + column + ". Numflags: " + numFlags + ". "
-                                    + "Numunknowns: " + numUnknown);
-
-                            for (int i = -1; i < 2; i++) {
-                                for (int j = -1; j < 2; j++) {
-                                    int testCol = j + column;
-                                    int testRow = i + row;
-
-                                    if (testRow >= 0 && testRow < rowSize && testCol >= 0 && testCol < columnSize) {
-                                        if (mineGrid[testRow][testCol].getValue() == CELL_FLAG) {
-                                            int[] tilePos = screen.getTilePos(testRow, testCol);
-                                            screen.robot.mouseMove(tilePos[0], tilePos[1]);
-                                            screen.robot.mousePress(InputEvent.BUTTON3_MASK);
-                                            Thread.sleep(10);
-                                            screen.robot.mouseRelease(InputEvent.BUTTON3_MASK);
-                                        }
-                                    }
-                                }
-                            }
-
-                            screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10,
-                                    screen.getMineGridTopCornerY() - 10);
-                            //                            endTime = System.nanoTime();
-                            //                            duration = (endTime - startTime) / 1000000000.0;
-                            //                            System.out.println("The duration is: " + duration);
-                            return;
                         } else if (numUnknown != 0) {
                             int numMines = mineGrid[row][column].getValue() - numFlags;
                             double chanceOfCorrectGuess = 1.0 - ((double) numMines / (double) numUnknown);
@@ -672,6 +700,7 @@ public class Main {
 
             if (highestGuessingChance < 0.01 && absoluteHighestGuessingChance > 0.49) {
                 guessRow = absoluteHighestGuessingChanceCell[0];
+
                 guessColumn = absoluteHighestGuessingChanceCell[1];
             } else {
                 guessRow = highestGuessingChanceCell[0];
