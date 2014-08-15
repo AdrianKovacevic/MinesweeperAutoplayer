@@ -110,6 +110,15 @@ public class Main {
         return true;
     }
 
+    /**
+     * Goes through the mine grid and fixes any cells that have been accidentally incorrectly flagged. Not needed in
+     * normal scenarios, but if the delay is very low then it may make moves based on analysing an incorrect screenshot
+     *
+     * @param screen Passes in the screen object that contains a screenshot and a 2D array of Cell objects that
+     *               represent the minesweeper grid
+     * @throws InterruptedException An exception for the sleep method
+     */
+
     private static void fixIncorrectFlags (Screen screen) throws InterruptedException {
         Cell[][] mineGrid = screen.getMineGrid();
         int rowSize = mineGrid.length;
