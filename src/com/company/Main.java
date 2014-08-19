@@ -127,14 +127,15 @@ public class Main {
         for (int row = 0; row < rowSize; row++) {
             for (int column = 0; column < columnSize; column++) {
 
-                if (mineGrid[row][column].getValue() != CELL_UNKNOWN && mineGrid[row][column].getValue() != CELL_FLAG && mineGrid[row][column].getValue() != CELL_BLANK) {
+                if (mineGrid[row][column].getValue() != CELL_UNKNOWN && mineGrid[row][column].getValue() != CELL_FLAG
+                        && mineGrid[row][column].getValue() != CELL_BLANK) {
                     findNumSurroundingFlagsAndUnkown(mineGrid, row, column);
                     if (mineGrid[row][column].getValue() < mineGrid[row][column].getNumSurroundingFlags()) {
                         // made a mistake, unflag everything
 
                         System.out.println(
-                                "Made a mistake. Unflagging around a " + mineGrid[row][column].getValue() + " at row " + row
-                                        + " and column " + column + ". Numflags: " +
+                                "Made a mistake. Unflagging around a " + mineGrid[row][column].getValue() + " at row "
+                                        + row + " and column " + column + ". Numflags: " +
                                         mineGrid[row][column].getNumSurroundingFlags() + ". " + "Numunknowns: "
                                         + mineGrid[row][column].getNumSurroundingUnknown());
 
@@ -155,7 +156,8 @@ public class Main {
                             }
                         }
 
-                        screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
+                        screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10,
+                                screen.getMineGridTopCornerY() - 10);
                     }
                 }
 
@@ -315,13 +317,15 @@ public class Main {
                             screen.robot.mousePress(InputEvent.BUTTON2_MASK);
                             Thread.sleep(10);
                             screen.robot.mouseRelease(InputEvent.BUTTON2_MASK);
-                            //                            endTime = System.nanoTime();
-                            //                            duration = (endTime - startTime) / 1000000000.0;
-                            //                            System.out.println("The duration is: " + duration);
+//                            endTime = System.nanoTime();
+//                            duration = (endTime - startTime) / 1000000000.0;
+//                            System.out.println("The duration is: " + duration);
                             return;
 
                             // otherwise, if not all of the number's adjacent cells have been flagged, but there are
-                            // the same number of unknown cells as leftover mines, then it flags all of the unknown cells
+                            // the same number of unknown cells as leftover mines, then it flags all of the unknown
+                            // cells
+
                         } else if (mineGrid[row][column].getValue() - numFlags == numUnknown && numUnknown != 0) {
                             System.out.println(
                                     "Flagging around a " + mineGrid[row][column].getValue() + " at row " + row
@@ -462,12 +466,12 @@ public class Main {
 
                 DenseMatrix64F matrixRREF = CommonOps.rref(new DenseMatrix64F(matrix), -1, null);
 
-                //                matrixRREF.print();
-                //
-                //                for (int i = 0; i < matrixColumnCells.size(); i++) {
-                //                    System.out.print(matrixColumnCells.get(i).getCoordinates()[0] + " " + matrixColumnCells.get(i).getCoordinates()[1] + " ");
-                //                }
-                //                System.out.print("\n");
+//                matrixRREF.print();
+//
+//                for (int i = 0; i < matrixColumnCells.size(); i++) {
+//                    System.out.print(matrixColumnCells.get(i).getCoordinates()[0] + " " + matrixColumnCells.get(i).getCoordinates()[1] + " ");
+//                }
+//                System.out.print("\n");
 
                 System.out.println(
                         "Matrix creation and reduction took: " + (double) (System.nanoTime() - testStart) / 1000000000.0
@@ -503,11 +507,11 @@ public class Main {
 
                         int consecutiveEquivalentDigits = numPermutations / 2;
 
-                        // since the only possibilities of the values of the unknown cells is mine or not mine, they belong
-                        // to a set of {0, 1}
-                        // this is a binary set, so finding all permutations of this can be done by enumerating all numbers
-                        // in binary with the number of bits equal to the number of non-zero entries in the matrix row
-                        // equation
+                        // since the only possibilities of the values of the unknown cells is mine or not mine,
+                        // they belong to a set of {0, 1}
+                        // this is a binary set, so finding all permutations of this can be done by enumerating all
+                        // numbers in binary with the number of bits equal to the number of non-zero entries in the
+                        // matrix row equation
                         // could also make a 2d array of all numbers from 0 to 2 ^ (number of non-zero entries) - 1 in
                         // binary with an integer to binary function and multiply each column by its corresponding
                         // coefficient to correct the sign
@@ -1032,7 +1036,8 @@ public class Main {
                 WinDef.HWND hwnd = User32.INSTANCE.FindWindow(null, "Minesweeper"); // window title
                 if (hwnd == null) {
                     System.err.println(
-                            "Minesweeper is not running! Make sure that the path is correct and that all single backslahses in the properties file are double backslashes.");
+                            "Minesweeper is not running! Make sure that the path is correct and that all single " +
+                                    "backslahses in the properties file are double backslashes.");
                     return;
                 } else {
                     // makes sure it is not minimized
