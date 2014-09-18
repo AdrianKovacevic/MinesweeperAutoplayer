@@ -677,7 +677,7 @@ public class Main {
 
             // iterate through the guessing chances for each number that is not able to be expanded, look for the
             // highest probability equal or less than 50%, and guess once on it. return, and check to see if anything
-            // new opened up that does not have to be guessedp
+            // new opened up that does not have to be guessed
             // 50% or less prevents guessing on something like a 1 with 8 empty cells around it'
 
             int[] highestGuessingChanceCell = new int[2];
