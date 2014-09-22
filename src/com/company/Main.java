@@ -127,14 +127,15 @@ public class Main {
         for (int row = 0; row < rowSize; row++) {
             for (int column = 0; column < columnSize; column++) {
 
-                if (mineGrid[row][column].getValue() != CELL_UNKNOWN && mineGrid[row][column].getValue() != CELL_FLAG && mineGrid[row][column].getValue() != CELL_BLANK) {
+                if (mineGrid[row][column].getValue() != CELL_UNKNOWN && mineGrid[row][column].getValue() != CELL_FLAG &&
+                        mineGrid[row][column].getValue() != CELL_BLANK) {
                     findNumSurroundingFlagsAndUnkown(mineGrid, row, column);
                     if (mineGrid[row][column].getValue() < mineGrid[row][column].getNumSurroundingFlags()) {
                         // made a mistake, unflag everything
 
                         System.out.println(
-                                "Made a mistake. Unflagging around a " + mineGrid[row][column].getValue() + " at row " + row
-                                        + " and column " + column + ". Numflags: " +
+                                "Made a mistake. Unflagging around a " + mineGrid[row][column].getValue() + " at row "
+                                        + row + " and column " + column + ". Numflags: " +
                                         mineGrid[row][column].getNumSurroundingFlags() + ". " + "Numunknowns: "
                                         + mineGrid[row][column].getNumSurroundingUnknown());
 
@@ -155,7 +156,8 @@ public class Main {
                             }
                         }
 
-                        screen.robot.mouseMove(screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
+                        screen.robot.mouseMove
+                                (screen.getMineGridTopCornerX() - 10, screen.getMineGridTopCornerY() - 10);
                     }
                 }
 
@@ -206,14 +208,6 @@ public class Main {
         if (gameOver) {
             System.out.println("Game over!");
             screen.robot.mouseMove(20, 20);
-//            screen.robot.keyPress(KeyEvent.VK_ALT);
-//            Thread.sleep(50);
-//            screen.robot.keyPress(KeyEvent.VK_P);
-//            Thread.sleep(50);
-//            screen.robot.keyRelease(KeyEvent.VK_P);
-//            Thread.sleep(50);
-//            screen.robot.keyRelease(KeyEvent.VK_ALT);
-
             screen.robot.keyPress(KeyEvent.VK_ENTER);
             Thread.sleep(50);
             screen.robot.keyRelease(KeyEvent.VK_ENTER);
@@ -321,7 +315,8 @@ public class Main {
                             return;
 
                             // otherwise, if not all of the number's adjacent cells have been flagged, but there are
-                            // the same number of unknown cells as leftover mines, then it flags all of the unknown cells
+                            // the same number of unknown cells as leftover mines, then it flags all of
+                            // the unknown cells
                         } else if (mineGrid[row][column].getValue() - numFlags == numUnknown && numUnknown != 0) {
                             System.out.println(
                                     "Flagging around a " + mineGrid[row][column].getValue() + " at row " + row
@@ -462,12 +457,13 @@ public class Main {
 
                 DenseMatrix64F matrixRREF = CommonOps.rref(new DenseMatrix64F(matrix), -1, null);
 
-                //                matrixRREF.print();
+                //matrixRREF.print();
                 //
-                //                for (int i = 0; i < matrixColumnCells.size(); i++) {
-                //                    System.out.print(matrixColumnCells.get(i).getCoordinates()[0] + " " + matrixColumnCells.get(i).getCoordinates()[1] + " ");
-                //                }
-                //                System.out.print("\n");
+                //for (int i = 0; i < matrixColumnCells.size(); i++) {
+                //    System.out.print(matrixColumnCells.get(i).getCoordinates()[0] + " " +
+                //    matrixColumnCells.get(i).getCoordinates()[1] + " ");
+                //}
+                //System.out.print("\n");
 
                 System.out.println(
                         "Matrix creation and reduction took: " + (double) (System.nanoTime() - testStart) / 1000000000.0
@@ -503,11 +499,11 @@ public class Main {
 
                         int consecutiveEquivalentDigits = numPermutations / 2;
 
-                        // since the only possibilities of the values of the unknown cells is mine or not mine, they belong
-                        // to a set of {0, 1}
-                        // this is a binary set, so finding all permutations of this can be done by enumerating all numbers
-                        // in binary with the number of bits equal to the number of non-zero entries in the matrix row
-                        // equation
+                        // since the only possibilities of the values of the unknown cells is mine or not mine,
+                        // they belong to a set of {0, 1}
+                        // this is a binary set, so finding all permutations of this can be done by enumerating all
+                        // numbers in binary with the number of bits equal to the number of non-zero entries in the
+                        // matrix row equation
                         // could also make a 2d array of all numbers from 0 to 2 ^ (number of non-zero entries) - 1 in
                         // binary with an integer to binary function and multiply each column by its corresponding
                         // coefficient to correct the sign
@@ -605,7 +601,8 @@ public class Main {
                 // the number of permutations of a variable number of mines given a constant number of squares is
                 // directly related to the rows in Pascal's triangle, for the given number of squares
                 // the equation relating the number of permutations to Pascal's triangle is:
-                // numPermutations = PascalsTriangle[unknownCoordinates.size()][unknownCoordinates.size() - numMinesLeft];
+                // numPermutations =
+                //      PascalsTriangle[unknownCoordinates.size()][unknownCoordinates.size() - numMinesLeft];
 
                 int numMinesLeft = screen.getTotalMines() - screen.getNumFlaggedMines();
 
@@ -673,7 +670,7 @@ public class Main {
 
             // iterate through the guessing chances for each number that is not able to be expanded, look for the
             // highest probability equal or less than 50%, and guess once on it. return, and check to see if anything
-            // new opened up that does not have to be guessedp
+            // new opened up that does not have to be guessed
             // 50% or less prevents guessing on something like a 1 with 8 empty cells around it'
 
             int[] highestGuessingChanceCell = new int[2];
@@ -782,10 +779,6 @@ public class Main {
             return;
         }
 
-        // add setup that changes to smallest windows size , changes to advanced, and changes to blue squares
-        // add support for other difficulties
-        // add better window tracking capabilities across Windows 8 and non-aero versions of the game
-        // add multithreading
 
         Thread.sleep(1500);
 
@@ -1026,13 +1019,15 @@ public class Main {
 
         GlobalScreen.getInstance().addNativeKeyListener(new GlobalKeyListener());
 
+
         try {
             while (GlobalScreen.isNativeHookRegistered()) {
 
                 WinDef.HWND hwnd = User32.INSTANCE.FindWindow(null, "Minesweeper"); // window title
                 if (hwnd == null) {
                     System.err.println(
-                            "Minesweeper is not running! Make sure that the path is correct and that all single backslahses in the properties file are double backslashes.");
+                            "Minesweeper is not running! Make sure that the path is correct and that all single " +
+                                    "backslahses in the properties file are double backslashes.");
                     return;
                 } else {
                     // makes sure it is not minimized

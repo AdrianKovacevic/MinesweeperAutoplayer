@@ -10,7 +10,7 @@ import org.jnativehook.keyboard.NativeKeyListener;
  */
 
 public class GlobalKeyListener implements NativeKeyListener {
-    boolean[] currentPressedKeys = new boolean[3];
+    private boolean[] currentPressedKeys = new boolean[3];
 
     /**
      * Un-registers the hook when CTRL ALT and D are pressed at the same time, allowing the loop in Main to close due to
